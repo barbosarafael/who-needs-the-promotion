@@ -1,7 +1,7 @@
 ---
 description: Designs and executes Data Science and modeling experiments
 mode: subagent
-model: openai/gpt-5.6-luna
+model: openai/gpt-6-luna
 steps: 10
 permissions:
   - action: edit

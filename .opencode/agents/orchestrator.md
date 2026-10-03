@@ -1,8 +1,8 @@
 ---
 description: Plans the project, manages dependencies and decides parallel execution
-model: opencode/nemotron-3-ultra-free
+model: openai/gpt-6-luna
 mode: all
-steps: 10
+steps: 25
 permissions:
   - action: edit
     resource: "*"

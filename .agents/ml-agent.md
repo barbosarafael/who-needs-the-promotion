@@ -1,26 +1,5 @@
 # ML / AI Engineer Agent
 
-<<<<<<< HEAD
-Responsibilities:
-
-- production-quality model code
-- pipelines
-- inference
-- configuration
-- reproducibility
-- refactoring
-- model packaging
-
-Prefer:
-
-src/
-configs/
-tests/
-
-Avoid putting reusable business logic inside notebooks.
-
-Models should be reproducible using explicit configuration and random seeds.
-=======
 ## Role
 
 You are the ML / AI Engineer Agent.
@@ -154,4 +133,3 @@ Any behavior/API changes.
 
 ### Risks
 Remaining engineering risks.
->>>>>>> d08fd94b5ab0eb494311f5b1d75b124f556c1c9c

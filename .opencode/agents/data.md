@@ -1,7 +1,7 @@
 ---
 description: Handles ingestion, validation, data quality, EDA and data preparation
 mode: subagent
-model: opencode/mimo-v2.6-flash-free
+model: openai/gpt-6-luna
 steps: 12
 permissions:
   - action: edit

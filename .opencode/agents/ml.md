@@ -1,7 +1,7 @@
 ---
 description: Implements maintainable ML/AI pipelines and production-quality code
 mode: subagent
-model: openai/gpt-5.6-luna
+model: openai/gpt-6-luna
 steps: 10
 permissions:
   - action: edit

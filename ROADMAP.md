@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Causal Incentive Optimization — Execution Roadmap
 
 Status: **planned**  
@@ -83,6 +82,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 
 #### T1 — Data contract and source/version plan
 
+- **GitHub issue:** [#1](https://github.com/barbosarafael/who-needs-the-promotion/issues/1)
+- **Status:** READY — H0 approved.
+
 - **Objective:** Define the exact input tables, required columns, identifiers, formats, dataset revision/hash, storage locations, and reduced artifacts.
 - **Context:** The source contains large transaction data and the public treatment-generation documentation may be incomplete. Repeated raw scans are costly.
 - **Expected output:** Data contract, acquisition/configuration module, dataset manifest template, and a documented strategy for Spark processing and persisted customer-level outputs.
@@ -92,6 +94,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 - **Files likely affected:** `README.md`, `docs/data_contract.md`, `configs/data.*`, `src/data/`, `.gitignore`, `tests/data/`.
 
 #### T2 — Causal estimand, DAG, and assumptions specification
+
+- **GitHub issue:** [#2](https://github.com/barbosarafael/who-needs-the-promotion/issues/2)
+- **Status:** READY — H0 approved.
 
 - **Objective:** Fix the observational causal question and decision estimands without prematurely claiming identification.
 - **Context:** The project must distinguish ATE, ATT, CATE, uplift, policy value, and economic value; treatment randomization is not assumed.
@@ -109,6 +114,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 
 #### T3 — Acquire, profile, and temporally audit the dataset
 
+- **GitHub issue:** [#3](https://github.com/barbosarafael/who-needs-the-promotion/issues/3)
+- **Status:** BLOCKED — T1, T2, and H0 approval are pending.
+
 - **Objective:** Download/reference the approved dataset, validate schema/grain/joins, profile treatment and outcome, and determine what history predates assignment.
 - **Context:** Feature leakage and invalid joins are the largest early risks; the exact temporal relationship is currently unknown.
 - **Expected output:** Versioned data manifest, schema/profile report, join-integrity report, temporal cutoff decision or documented unresolved ambiguity, and a reduced reproducible sample for development.
@@ -125,6 +133,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 
 #### T4 — Build the customer-level feature pipeline
 
+- **GitHub issue:** [#4](https://github.com/barbosarafael/who-needs-the-promotion/issues/4)
+- **Status:** BLOCKED — T3 and H1 approval are pending.
+
 - **Objective:** Aggregate only pre-treatment customer, product, and purchase history into reusable customer-level features.
 - **Context:** Planned RFM, discount, diversity, store, and historical-window features must be reproducible and feasible on Databricks Free Edition.
 - **Expected output:** Spark/Spark SQL feature pipeline, persisted feature-table contract, feature metadata, train/validation/test split policy, and small local fixture data.
@@ -134,6 +145,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 - **Files likely affected:** `src/features/`, `src/data/spark/`, `configs/features.*`, `tests/features/`, `docs/feature_catalog.md`.
 
 #### T5 — Lock diagnostics and evaluation protocol
+
+- **GitHub issue:** [#5](https://github.com/barbosarafael/who-needs-the-promotion/issues/5)
+- **Status:** BLOCKED — T2 and T3 are pending.
 
 - **Objective:** Define how balance, overlap, ATE, CATE, uplift, policy, and uncertainty will be measured without using unavailable individual-effect labels.
 - **Context:** Qini/AUUC/policy value can be misinterpreted in observational data; standard predictive metrics are not primary causal metrics.
@@ -151,6 +165,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 
 #### T6 — Add data-quality, leakage, and reproducibility tests
 
+- **GitHub issue:** [#6](https://github.com/barbosarafael/who-needs-the-promotion/issues/6)
+- **Status:** BLOCKED — T4 and T5 are pending.
+
 - **Objective:** Make invalid grains, post-treatment features, duplicate joins, nondeterministic splits, and missing required columns fail fast.
 - **Context:** These tests protect all downstream causal conclusions and reduce expensive reruns.
 - **Expected output:** Automated unit/data-contract tests, deterministic fixture pipeline, and validation command documented for contributors.
@@ -161,6 +178,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 
 #### T7 — Implement and compare ATE/ATT estimators
 
+- **GitHub issue:** [#7](https://github.com/barbosarafael/who-needs-the-promotion/issues/7)
+- **Status:** BLOCKED — T4, T5, and H2 approval are pending.
+
 - **Objective:** Estimate average effects using regression adjustment, IPW, and AIPW/doubly robust methods, with diagnostics and uncertainty.
 - **Context:** Simple estimators must be understood before heterogeneous models; poor overlap or confounding must be visible rather than hidden.
 - **Expected output:** Reusable estimator code, balance/propensity reports, confidence intervals or bootstrap intervals, estimator comparison, and experiment record.
@@ -170,6 +190,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 - **Files likely affected:** `src/causal/estimators.py`, `src/causal/diagnostics.py`, `reports/ate_baseline.*`, `experiments/ate_baseline.*`, `tests/causal/`.
 
 #### T8 — Build the semi-synthetic known-effect benchmark
+
+- **GitHub issue:** [#8](https://github.com/barbosarafael/who-needs-the-promotion/issues/8)
+- **Status:** BLOCKED — T4 and T5 are pending.
 
 - **Objective:** Create a reproducible benchmark using real covariates with controlled assignment and known individual/conditional effects.
 - **Context:** Real customers do not reveal both potential outcomes; the benchmark is required to test estimator bias and recovery.
@@ -187,6 +210,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 
 #### T9 — Define the learner and experiment interfaces
 
+- **GitHub issue:** [#9](https://github.com/barbosarafael/who-needs-the-promotion/issues/9)
+- **Status:** BLOCKED — T4, T5, and preferably T7 are pending.
+
 - **Objective:** Provide maintainable interfaces for treatment-effect learners, nuisance models, cross-fitting, seeds, artifacts, and prediction outputs.
 - **Context:** Multiple learners must be compared consistently without making causal libraries a black box.
 - **Expected output:** Model interface and configuration schema, baseline nuisance-model implementations, training/prediction artifact contract, and focused unit tests.
@@ -196,6 +222,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 - **Files likely affected:** `src/models/`, `src/training/`, `configs/models.*`, `tests/models/`, `docs/model_contract.md`.
 
 #### T10 — Train, validate, and compare CATE learners
+
+- **GitHub issue:** [#10](https://github.com/barbosarafael/who-needs-the-promotion/issues/10)
+- **Status:** BLOCKED — T7, T8, T9, and H3 approval are pending.
 
 - **Objective:** Fit S-, T-, X-, DR-Learner, and Causal Forest or a justified equivalent on the approved data and benchmark.
 - **Context:** Advanced methods are meaningful only after simple estimators, overlap diagnostics, and known-effect validation are available.
@@ -213,6 +242,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 
 #### T11 — Implement uplift, policy-value, and targeting evaluation
 
+- **GitHub issue:** [#11](https://github.com/barbosarafael/who-needs-the-promotion/issues/11)
+- **Status:** BLOCKED — T5, T10, and H4 approval are pending.
+
 - **Objective:** Evaluate ranking and treatment decisions at relevant coverage/budget levels using honest held-out outcomes and appropriate causal caveats.
 - **Context:** The useful output is a decision policy, not a model leaderboard; observational policy evaluation may require stronger assumptions.
 - **Expected output:** Qini/AUUC/uplift curves, uplift@K, policy-value estimator, coverage table, baseline comparison, and stability analysis.
@@ -222,6 +254,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 - **Files likely affected:** `src/policy/`, `src/evaluation/uplift.py`, `reports/policy_evaluation.*`, `tests/policy/`.
 
 #### T12 — Add simulated economic layer and sensitivity analysis
+
+- **GitHub issue:** [#12](https://github.com/barbosarafael/who-needs-the-promotion/issues/12)
+- **Status:** BLOCKED — T11 and H4 approval are pending.
 
 - **Objective:** Convert incremental response estimates into a transparent cost-aware treat/don't-treat rule.
 - **Context:** Incentive cost, margin, and customer value are not fully observed in X5 and must be simulated, not presented as dataset facts.
@@ -239,6 +274,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 
 #### T13 — Produce final analysis, documentation, and reproducibility bundle
 
+- **GitHub issue:** [#13](https://github.com/barbosarafael/who-needs-the-promotion/issues/13)
+- **Status:** BLOCKED — T6, T10, T12, and H5 approval are pending.
+
 - **Objective:** Synthesize data, causal reasoning, model results, policy results, limitations, and next steps into the final project narrative.
 - **Context:** The final deliverable must connect causal inference, ML, and business decision-making without overstating identification.
 - **Expected output:** Updated README, methodology report/notebooks, experiment index, results tables/figures, limitations, run instructions, and artifact manifest.
@@ -248,6 +286,9 @@ The two most useful parallel pairs are deliberately limited to: (T1,T2), (T4,T5)
 - **Files likely affected:** `README.md`, `docs/`, `reports/`, `notebooks/`, `experiments/`, `configs/`.
 
 #### T14 — Independent review and remediation
+
+- **GitHub issue:** [#14](https://github.com/barbosarafael/who-needs-the-promotion/issues/14)
+- **Status:** BLOCKED — T13 is pending.
 
 - **Objective:** Audit methodology and implementation before release, then resolve only issues that affect correctness, reproducibility, or acceptance criteria.
 - **Context:** Causal leakage, unsupported identification, misleading uplift metrics, and hidden economic assumptions are high-risk failures.
@@ -296,33 +337,9 @@ At every checkpoint, the human may stop, narrow scope, or reorder later work. A 
 - Do not launch hyperparameter sweeps until a model has passed the causal and benchmark gates.
 - REVIEWER audits completed artifacts rather than duplicating full experiments.
 - If a task expands beyond its acceptance criteria, create a follow-up task instead of silently broadening the milestone.
-=======
-# Roadmap
 
-This file is maintained by the Orchestrator.
+## 9. GitHub issue and execution status
 
-## Status legend
+Issue mapping: T1 #1, T2 #2, T3 #3, T4 #4, T5 #5, T6 #6, T7 #7, T8 #8, T9 #9, T10 #10, T11 #11, T12 #12, T13 #13, T14 #14.
 
-- `TODO`
-- `READY`
-- `IN_PROGRESS`
-- `BLOCKED`
-- `REVIEW`
-- `DONE`
-
-## Milestone 1
-
-TBD
-
-## Dependency graph
-
-TBD
-
-## Parallel execution candidates
-
-TBD
-
-## Risks and assumptions
-
-TBD
->>>>>>> d08fd94b5ab0eb494311f5b1d75b124f556c1c9c
+H0 was approved by the human on 2026-10-03. T1 and T2 are READY: they have separate owners and artifact paths, no mutual dependencies, and can safely run in parallel, within the project limit of two agents. T3–T14 remain BLOCKED on their listed task dependencies and/or subsequent human checkpoints. Afterward, follow the dependency graph and human gates above.

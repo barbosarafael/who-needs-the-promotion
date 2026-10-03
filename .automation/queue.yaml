@@ -1,0 +1,157 @@
+version: 1
+
+settings:
+  base_branch: main
+  max_parallel: 2
+  max_runtime_minutes: 60
+
+checkpoints:
+  H0:
+    approved: true
+    description: Data access / scope approved
+  H1:
+    approved: false
+    description: Identification / data go-no-go
+  H2:
+    approved: false
+    description: Feature / evaluation contract
+  H3:
+    approved: false
+    description: Baseline quality gate
+  H4:
+    approved: false
+    description: Model selection gate
+  H5:
+    approved: false
+    description: Decision-use checkpoint
+  H6:
+    approved: false
+    description: Release decision
+
+tasks:
+  - issue: 1
+    task_id: T1
+    slug: data-contract
+    agent: data
+    prompt_file: .agents/data-agent.md
+    status: READY
+    depends_on: []
+    requires_checkpoints: [H0]
+
+  - issue: 2
+    task_id: T2
+    slug: causal-design
+    agent: ds
+    prompt_file: .agents/ds-agent.md
+    status: READY
+    depends_on: []
+    requires_checkpoints: [H0]
+
+  - issue: 3
+    task_id: T3
+    slug: dataset-audit
+    agent: data
+    prompt_file: .agents/data-agent.md
+    status: BLOCKED
+    depends_on: [1, 2]
+    requires_checkpoints: [H0]
+
+  - issue: 4
+    task_id: T4
+    slug: feature-pipeline
+    agent: data
+    prompt_file: .agents/data-agent.md
+    status: BLOCKED
+    depends_on: [3]
+    requires_checkpoints: [H1]
+
+  - issue: 5
+    task_id: T5
+    slug: evaluation-protocol
+    agent: ds
+    prompt_file: .agents/ds-agent.md
+    status: BLOCKED
+    depends_on: [2, 3]
+    requires_checkpoints: [H1]
+
+  - issue: 6
+    task_id: T6
+    slug: data-quality-tests
+    agent: data
+    prompt_file: .agents/data-agent.md
+    status: BLOCKED
+    depends_on: [4, 5]
+    requires_checkpoints: [H2]
+
+  - issue: 7
+    task_id: T7
+    slug: ate-att-estimators
+    agent: ds
+    prompt_file: .agents/ds-agent.md
+    status: BLOCKED
+    depends_on: [4, 5]
+    requires_checkpoints: [H2]
+
+  - issue: 8
+    task_id: T8
+    slug: semi-synthetic-benchmark
+    agent: ds
+    prompt_file: .agents/ds-agent.md
+    status: BLOCKED
+    depends_on: [4, 5]
+    requires_checkpoints: [H2]
+
+  - issue: 9
+    task_id: T9
+    slug: learner-interfaces
+    agent: ml
+    prompt_file: .agents/ml-agent.md
+    status: BLOCKED
+    depends_on: [4, 5]
+    requires_checkpoints: [H2]
+    note: "Orchestrator must explicitly mark READY after deciding whether it waits for T7/T8."
+
+  - issue: 10
+    task_id: T10
+    slug: cate-learners
+    agent: ml
+    prompt_file: .agents/ml-agent.md
+    status: BLOCKED
+    depends_on: [7, 8, 9]
+    requires_checkpoints: [H3]
+
+  - issue: 11
+    task_id: T11
+    slug: uplift-policy-evaluation
+    agent: ds
+    prompt_file: .agents/ds-agent.md
+    status: BLOCKED
+    depends_on: [5, 10]
+    requires_checkpoints: [H4]
+
+  - issue: 12
+    task_id: T12
+    slug: economic-sensitivity
+    agent: ds
+    prompt_file: .agents/ds-agent.md
+    status: BLOCKED
+    depends_on: [11]
+    requires_checkpoints: [H4]
+
+  - issue: 13
+    task_id: T13
+    slug: final-analysis
+    agent: ds
+    prompt_file: .agents/ds-agent.md
+    status: BLOCKED
+    depends_on: [6, 10, 12]
+    requires_checkpoints: [H5]
+
+  - issue: 14
+    task_id: T14
+    slug: independent-review
+    agent: reviewer
+    prompt_file: .agents/reviewer.md
+    status: BLOCKED
+    depends_on: [13]
+    requires_checkpoints: [H5]

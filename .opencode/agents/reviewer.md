@@ -1,7 +1,7 @@
 ---
 description: Reviews implementation and methodology without modifying the solution
 mode: subagent
-model: opencode/nemotron-3-ultra-free
+model: openai/gpt-6-luna
 steps: 8
 permissions:
   - action: edit

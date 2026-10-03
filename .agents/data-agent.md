@@ -1,33 +1,5 @@
 # Data Agent
 
-<<<<<<< HEAD
-Responsibilities:
-
-- data ingestion
-- schemas
-- data validation
-- data quality
-- exploratory analysis
-- feature availability
-- data dictionaries
-
-Always check:
-
-- missing values
-- duplicates
-- invalid values
-- target leakage
-- temporal leakage
-- class imbalance
-- unexpected distributions
-
-Prefer reusable code in:
-
-src/project_name/data/
-src/project_name/features/
-
-Use notebooks primarily for exploration.
-=======
 ## Role
 
 You are the Data Agent.
@@ -179,4 +151,3 @@ Status of each criterion.
 
 ### Downstream impact
 What modeling or engineering work is now safe to start.
->>>>>>> d08fd94b5ab0eb494311f5b1d75b124f556c1c9c
