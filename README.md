@@ -1,116 +1,121 @@
-<<<<<<< HEAD
-# who-needs-the-promotion
-=======
-# DS Agentic Project Template
+# Who Needs the Promotion?
 
-Template para projetos de Data Science, Machine Learning e AI usando:
+Projeto de **inferência causal e otimização de incentivos**. A pergunta não é apenas quais clientes provavelmente comprarão, mas:
 
-- GitHub como fonte da verdade
-- VSCode + Codex para desenvolvimento
-- Databricks Free Edition para exploração, treinamento e experimentos quando necessário
-- GitHub Actions para validações determinísticas
-- Git worktrees para execução paralela de agentes
+> Quais clientes têm maior probabilidade de comprar **por causa** da promoção?
 
-## Fluxo padrão
+O objetivo é estimar o efeito incremental de uma intervenção promocional e transformar essa estimativa em uma política de decisão `TRATAR / NÃO TRATAR`, considerando também custo e valor econômico.
 
-1. Crie um novo repositório a partir deste template.
-2. Preencha `PROJECT.md`.
-3. Rode o Orchestrator.
-4. Converta o plano em Issues.
-5. Execute no máximo 2 tarefas independentes em paralelo.
-6. Cada tarefa deve usar sua própria branch/worktree.
-7. Abra PRs separados.
-8. Rode CI.
-9. Rode o Reviewer.
-10. Faça merge.
-11. Atualize o roadmap e prossiga para as próximas tarefas desbloqueadas.
+> **Status:** em planejamento e construção. Resultados finais, limiares de sucesso e conclusões de negócio ainda não estão definidos.
 
-## Primeiro comando para o Codex
+## O que será investigado
 
-Abra o projeto no VSCode e peça:
+- efeito médio da promoção (ATE/ATT);
+- comparabilidade entre tratamento e controle;
+- sobreposição de propensity scores e possíveis confundidores;
+- heterogeneidade do efeito por perfil de cliente (CATE/uplift);
+- comparação entre targeting por propensão e targeting causal;
+- políticas de tratamento em diferentes níveis de cobertura e orçamento;
+- sensibilidade a custos, margens e valor do incentivo — parâmetros simulados e identificados como tais.
 
-```text
-Read AGENTS.md, PROJECT.md and .agents/orchestrator.md.
+O projeto não assume que a atribuição do tratamento no dataset seja aleatória. As hipóteses de identificação, limitações temporais e incerteza serão documentadas antes de qualquer conclusão causal.
 
-Act as the Orchestrator for this repository.
+## Dados
 
-Create or update ROADMAP.md with:
-- milestones
-- atomic tasks
-- dependencies
-- tasks that can run in parallel
-- assigned agent for each task
-- acceptance criteria
-- expected outputs
-- risks and assumptions
+Fonte planejada: [X5 RetailHero Uplift Modeling Dataset](https://huggingface.co/datasets/pytorch-lifestream/retailhero-uplift).
 
-Do not implement project features yet.
-```
+Tabelas principais:
 
-## Estrutura
+- `clients`;
+- `products`;
+- `purchases`;
+- `uplift_train`;
+- `uplift_test`.
+
+O grão de modelagem é um cliente (`client_id`). As colunas centrais são:
+
+- `treatment_flg`: indicador de recebimento da comunicação promocional;
+- `target`: compra observada no período de resultado.
+
+As features devem estar disponíveis **antes** da atribuição do tratamento. Dados brutos ficam fora do Git; consulte [`data/README.md`](data/README.md) e [`docs/data_contract.md`](docs/data_contract.md) para a organização e o contrato de dados.
+
+## Metodologia planejada
+
+1. Validar schema, granularidade, joins e janela temporal.
+2. Construir uma tabela de cliente com features pré-tratamento, como recência, frequência, gasto e diversidade de compras.
+3. Avaliar balanceamento, overlap e qualidade da identificação.
+4. Comparar ajuste por regressão, IPW e estimadores duplamente robustos.
+5. Validar os métodos em um benchmark semissintético com efeitos conhecidos.
+6. Comparar S-, T-, X- e DR-Learners e uma alternativa de causal forest.
+7. Avaliar uplift, Qini, AUUC e valor de política em dados honestamente separados.
+8. Aplicar uma camada econômica explícita para recomendar tratar ou não tratar.
+
+O [ROADMAP](ROADMAP.md) contém as tarefas, dependências, critérios de aceite e checkpoints do projeto.
+
+## Estrutura do repositório
 
 ```text
 .
-├── AGENTS.md
-├── PROJECT.md
-├── ROADMAP.md
-├── README.md
-├── pyproject.toml
-├── .gitignore
-├── .env.example
-├── .agents/
-│   ├── orchestrator.md
-│   ├── data-agent.md
-│   ├── ds-agent.md
-│   ├── ml-agent.md
-│   └── reviewer.md
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── task.yml
-│   │   └── experiment.yml
-│   ├── pull_request_template.md
-│   └── workflows/
-│       └── ci.yml
-├── scripts/
-│   ├── create_worktree.sh
-│   └── remove_worktree.sh
-├── src/
-├── tests/
-├── notebooks/
-├── configs/
-├── docs/
-├── experiments/
-└── data/
+├── .agents/       # Instruções dos agentes de trabalho
+├── configs/       # Configurações versionadas
+├── data/          # Estrutura local; datasets são ignorados pelo Git
+├── docs/          # Contratos, metodologia e operação
+├── experiments/   # Registros de experimentos
+├── notebooks/     # Exploração e narrativa dos resultados
+├── scripts/       # Automação e worktrees
+├── src/           # Código reutilizável
+├── tests/         # Testes automatizados
+├── PROJECT.md     # Definição detalhada do projeto
+└── ROADMAP.md     # Plano de execução
 ```
 
-## Paralelismo
+## Como começar
 
-Use paralelismo somente quando as tarefas:
-
-- não dependem do output uma da outra;
-- não alteram os mesmos arquivos;
-- não competem pelo mesmo recurso;
-- possuem critérios de aceite independentes.
-
-Comece com no máximo **2 agentes simultâneos**.
-
-Exemplo:
+Requer Python 3.11 ou superior. Para instalar o ambiente de desenvolvimento:
 
 ```bash
-./scripts/create_worktree.sh 12 eda
-./scripts/create_worktree.sh 13 baseline-model
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -e ".[dev]"
 ```
 
-Isso cria worktrees irmãos ao repositório atual, cada um em sua própria branch.
+Para instalar também as dependências de Data Science:
 
-## Regra principal
+```bash
+pip install -e ".[dev,ds]"
+```
 
-Use AI para raciocínio e trabalho não determinístico.
+Não há dados brutos versionados nem um pipeline de modelagem executável de ponta a ponta neste estágio. A aquisição e o uso dos dados dependem da validação do contrato e dos checkpoints descritos no roadmap.
 
-Use CI/scripts para:
-- testes;
-- lint;
-- formatação;
-- type checking;
-- validações reproduzíveis.
->>>>>>> d08fd94b5ab0eb494311f5b1d75b124f556c1c9c
+## Qualidade e testes
+
+Os mesmos checks usados no CI podem ser executados localmente:
+
+```bash
+ruff check .
+mypy src
+pytest
+```
+
+O CI roda automaticamente em pushes para `main` e em pull requests. Funcionalidades devem ser desenvolvidas em branches específicas da tarefa, nunca diretamente em `main`.
+
+## Documentação útil
+
+- [`PROJECT.md`](PROJECT.md): problema, dataset, estimandos, restrições e entregáveis;
+- [`ROADMAP.md`](ROADMAP.md): execução por marcos e dependências;
+- [`docs/WORKFLOW.md`](docs/WORKFLOW.md): fluxo de desenvolvimento;
+- [`docs/DATABRICKS.md`](docs/DATABRICKS.md): uso opcional do Databricks;
+- [`docs/AUTOMATION.md`](docs/AUTOMATION.md): automação do repositório.
+
+## Princípios
+
+- Não confundir propensão de compra com efeito incremental.
+- Não usar variáveis pós-tratamento ou introduzir leakage temporal.
+- Não apresentar efeito individual como verdade observada.
+- Separar evidência do dataset de custos, margens e valores simulados.
+- Priorizar reprodutibilidade, diagnósticos e interpretação em vez de leaderboard.
+
+## Licença
+
+Consulte [`LICENSE`](LICENSE).

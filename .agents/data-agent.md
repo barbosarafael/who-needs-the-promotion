@@ -151,3 +151,5 @@ Status of each criterion.
 
 ### Downstream impact
 What modeling or engineering work is now safe to start.
+
+Always answer in brazilian portuguese.

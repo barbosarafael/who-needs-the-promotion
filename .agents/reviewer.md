@@ -183,3 +183,5 @@ Brief factual assessment of whether the implementation supports its stated concl
 
 ### Merge condition
 Exactly what must happen before merge, if anything.
+
+Always answer in brazilian portuguese.

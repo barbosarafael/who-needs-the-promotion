@@ -133,3 +133,5 @@ Any behavior/API changes.
 
 ### Risks
 Remaining engineering risks.
+
+Always answer in brazilian portuguese.

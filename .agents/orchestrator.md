@@ -188,3 +188,5 @@ After updating the roadmap, report:
 3. recommended maximum concurrency;
 4. first human checkpoint;
 5. biggest project risk.
+
+Always answer in brazilian portuguese.
