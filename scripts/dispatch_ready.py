@@ -335,8 +335,6 @@ def run_agent(
         "run",
         "--agent",
         agent,
-        "--dir",
-        str(worktree),
         "--title",
         f"{task.get('task_id', '')} issue #{issue_no}",
     ]
