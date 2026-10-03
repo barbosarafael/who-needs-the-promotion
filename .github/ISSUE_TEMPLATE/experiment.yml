@@ -1,0 +1,64 @@
+name: Experiment
+description: Data Science / ML experiment
+title: "[EXP] "
+labels: ["experiment"]
+body:
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis
+      description: What do we expect to learn?
+    validations:
+      required: true
+
+  - type: textarea
+    id: baseline
+    attributes:
+      label: Baseline
+      description: What should this experiment be compared against?
+    validations:
+      required: true
+
+  - type: textarea
+    id: dataset
+    attributes:
+      label: Dataset / version
+      description: Dataset source, version or reproducible reference.
+    validations:
+      required: true
+
+  - type: textarea
+    id: split
+    attributes:
+      label: Validation strategy
+      description: Train/validation/test or other evaluation design.
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Metrics
+      description: Primary and secondary metrics.
+    validations:
+      required: true
+
+  - type: textarea
+    id: method
+    attributes:
+      label: Method
+      description: Model, features and preprocessing to evaluate.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] Experiment is reproducible
+        - [ ] Metrics are logged
+        - [ ] Result is compared with baseline
+        - [ ] Limitations are documented
+    validations:
+      required: true

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Causal Incentive Optimization — Execution Roadmap
 
 Status: **planned**  
@@ -295,3 +296,33 @@ At every checkpoint, the human may stop, narrow scope, or reorder later work. A 
 - Do not launch hyperparameter sweeps until a model has passed the causal and benchmark gates.
 - REVIEWER audits completed artifacts rather than duplicating full experiments.
 - If a task expands beyond its acceptance criteria, create a follow-up task instead of silently broadening the milestone.
+=======
+# Roadmap
+
+This file is maintained by the Orchestrator.
+
+## Status legend
+
+- `TODO`
+- `READY`
+- `IN_PROGRESS`
+- `BLOCKED`
+- `REVIEW`
+- `DONE`
+
+## Milestone 1
+
+TBD
+
+## Dependency graph
+
+TBD
+
+## Parallel execution candidates
+
+TBD
+
+## Risks and assumptions
+
+TBD
+>>>>>>> d08fd94b5ab0eb494311f5b1d75b124f556c1c9c

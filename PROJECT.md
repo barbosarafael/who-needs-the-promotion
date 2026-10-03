@@ -4,6 +4,7 @@ Fill this file before asking the Orchestrator to plan the project.
 
 ## Project name
 
+<<<<<<< HEAD
 Causal Incentive Optimization
 
 ## Problem
@@ -107,10 +108,47 @@ Treatment policy
 **TREAT / DON'T TREAT**
 
 The final result should not simply be a trained causal model. It should demonstrate how causal estimates can be transformed into a decision-making policy.
+=======
+TBD
+
+## Problem
+
+What problem are we solving?
+
+TBD
+
+## Motivation / business or research value
+
+Why does this project matter?
+
+TBD
+
+## Main question
+
+What is the main question the project should answer?
+
+TBD
+
+## Expected output
+
+Examples:
+- classification model;
+- regression model;
+- forecasting system;
+- recommendation system;
+- clustering analysis;
+- causal analysis;
+- RAG application;
+- AI agent;
+- data product.
+
+TBD
+>>>>>>> d08fd94b5ab0eb494311f5b1d75b124f556c1c9c
 
 ## Dataset / data source
 
 Source:
+<<<<<<< HEAD
 
 **X5 RetailHero Uplift Modeling Dataset**
 
@@ -190,10 +228,26 @@ Prediction time, if applicable:
 At the moment a promotional targeting decision would be made, using only customer information available before the intervention.
 
 The exact temporal cutoff must be validated during dataset exploration and feature engineering.
+=======
+TBD
+
+Known schema:
+TBD
+
+Target variable, if applicable:
+TBD
+
+Prediction unit, if applicable:
+TBD
+
+Prediction time, if applicable:
+TBD
+>>>>>>> d08fd94b5ab0eb494311f5b1d75b124f556c1c9c
 
 ## Success metrics
 
 Primary metric:
+<<<<<<< HEAD
 
 The final primary metric has not yet been fixed.
 
@@ -236,6 +290,15 @@ At minimum, the final project should demonstrate that:
 - a treatment policy is compared against simple baselines;
 - economic assumptions are clearly separated from observed dataset information;
 - conclusions acknowledge identification limitations and uncertainty.
+=======
+TBD
+
+Secondary metrics:
+TBD
+
+Business/research acceptance threshold:
+TBD
+>>>>>>> d08fd94b5ab0eb494311f5b1d75b124f556c1c9c
 
 ## Constraints
 
@@ -246,6 +309,7 @@ At minimum, the final project should demonstrate that:
 - Default maximum parallel agents: 2.
 
 Additional constraints:
+<<<<<<< HEAD
 
 - The project must prioritize learning causal inference over maximizing leaderboard performance.
 - Do not treat causal inference libraries as black boxes.
@@ -263,6 +327,9 @@ Additional constraints:
 - Simulated costs, margins or incentive values must always be identified as simulated and never presented as values contained in the X5 dataset.
 - Resource usage must remain compatible with Databricks Free Edition.
 - Development should progress milestone by milestone instead of attempting to implement the entire project at once.
+=======
+TBD
+>>>>>>> d08fd94b5ab0eb494311f5b1d75b124f556c1c9c
 
 ## Deliverables
 
@@ -274,6 +341,7 @@ Additional constraints:
 - limitations and next steps.
 
 Additional deliverables:
+<<<<<<< HEAD
 
 - formal causal problem definition;
 - documented treatment, outcome and estimands;
@@ -385,3 +453,14 @@ Poorly designed joins or repeated feature-generation workloads may exceed the pr
 Advanced causal models such as DR-Learner and Causal Forest can obscure the underlying causal reasoning.
 
 They should only be introduced after simpler estimators are understood and validated.
+=======
+TBD
+
+## Out of scope
+
+TBD
+
+## Known risks / uncertainties
+
+TBD
+>>>>>>> d08fd94b5ab0eb494311f5b1d75b124f556c1c9c
