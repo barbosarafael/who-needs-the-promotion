@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """
-Dispatch READY GitHub issues to OpenCode agents in isolated Git worktrees.
+Automatic dispatcher for OpenCode agents using isolated git clones.
 
-Usage:
-    python scripts/dispatch_ready.py --dry-run
-    python scripts/dispatch_ready.py
-    python scripts/dispatch_ready.py --issue 1 --issue 2
-    python scripts/dispatch_ready.py --status
-
-The script intentionally does NOT merge pull requests or approve human checkpoints.
+Key behavior:
+- Selects at most 2 READY tasks.
+- Creates an isolated clone per task instead of git worktrees.
+- Creates the issue branch inside that clone.
+- Runs `opencode run --standalone --agent <agent>` inside the clone.
+- Considers a task successful only if:
+    * the agent process exits successfully,
+    * the remote branch exists,
+    * an open PR exists for that branch.
+- Reports INCOMPLETE instead of OK when the agent exits 0 but does not publish a PR.
 """
 
 from __future__ import annotations
@@ -37,9 +40,6 @@ except ImportError:
     raise SystemExit(2)
 
 
-CONFLICT_MARKERS = ("<<<<<<< ", "=======\n", ">>>>>>> ")
-
-
 class DispatchError(RuntimeError):
     pass
 
@@ -65,6 +65,11 @@ def git_root() -> Path:
     return Path(result.stdout.strip()).resolve()
 
 
+def require_command(name: str) -> None:
+    if shutil.which(name) is None:
+        raise DispatchError(f"Required command not found in PATH: {name}")
+
+
 def load_queue(root: Path) -> dict[str, Any]:
     path = root / ".automation" / "queue.yaml"
     if not path.exists():
@@ -75,17 +80,11 @@ def load_queue(root: Path) -> dict[str, Any]:
     return data
 
 
-def require_command(name: str) -> None:
-    if shutil.which(name) is None:
-        raise DispatchError(f"Required command not found in PATH: {name}")
-
-
 def ensure_repo_safe(root: Path, base_branch: str) -> None:
-    # Worktree must be clean so the agent starts from a deterministic commit.
     status = cmd(["git", "status", "--porcelain"], cwd=root).stdout.strip()
     if status:
         raise DispatchError(
-            "Main worktree has uncommitted changes. Commit/stash them before dispatching.\n"
+            "Main repository has uncommitted changes. Commit or discard them before dispatching.\n"
             f"{status}"
         )
 
@@ -101,7 +100,6 @@ def ensure_repo_safe(root: Path, base_branch: str) -> None:
     if unresolved:
         raise DispatchError(f"Unresolved Git conflicts:\n{unresolved}")
 
-    # Catch committed conflict markers too.
     for rel in ("PROJECT.md", "ROADMAP.md"):
         path = root / rel
         if path.exists():
@@ -111,15 +109,13 @@ def ensure_repo_safe(root: Path, base_branch: str) -> None:
                     f"{rel} still contains merge-conflict markers. Resolve them first."
                 )
 
-    cmd(["git", "fetch", "origin", base_branch], cwd=root, capture=True)
+    cmd(["git", "fetch", "origin", base_branch], cwd=root)
     local = cmd(["git", "rev-parse", "HEAD"], cwd=root).stdout.strip()
-    remote = cmd(
-        ["git", "rev-parse", f"origin/{base_branch}"], cwd=root
-    ).stdout.strip()
+    remote = cmd(["git", "rev-parse", f"origin/{base_branch}"], cwd=root).stdout.strip()
     if local != remote:
         raise DispatchError(
             f"Local {base_branch} is not identical to origin/{base_branch}. "
-            "Run `git pull --ff-only` / push pending commits before dispatching."
+            "Sync the branch before dispatching."
         )
 
 
@@ -134,21 +130,24 @@ def repo_name_with_owner(root: Path) -> str:
     return value
 
 
+def origin_url(root: Path) -> str:
+    return cmd(["git", "remote", "get-url", "origin"], cwd=root).stdout.strip()
+
+
 def issue_info(root: Path, repo: str, issue: int) -> dict[str, Any]:
+    # REST API avoids the Projects Classic GraphQL warning/failure from `gh issue view`.
     result = cmd(
-        [
-            "gh",
-            "issue",
-            "view",
-            str(issue),
-            "--repo",
-            repo,
-            "--json",
-            "number,title,body,state,url",
-        ],
+        ["gh", "api", f"repos/{repo}/issues/{issue}"],
         cwd=root,
     )
-    return json.loads(result.stdout)
+    data = json.loads(result.stdout)
+    return {
+        "number": data["number"],
+        "title": data.get("title", ""),
+        "body": data.get("body") or "",
+        "state": data.get("state", ""),
+        "url": data.get("html_url", ""),
+    }
 
 
 def issue_closed(root: Path, repo: str, issue: int) -> bool:
@@ -181,14 +180,6 @@ def slugify(value: str) -> str:
     return value.strip("-") or "task"
 
 
-def branch_exists(root: Path, branch: str) -> bool:
-    result = subprocess.run(
-        ["git", "show-ref", "--verify", "--quiet", f"refs/heads/{branch}"],
-        cwd=root,
-    )
-    return result.returncode == 0
-
-
 def remote_branch_exists(root: Path, branch: str) -> bool:
     result = subprocess.run(
         ["git", "ls-remote", "--exit-code", "--heads", "origin", branch],
@@ -199,41 +190,63 @@ def remote_branch_exists(root: Path, branch: str) -> bool:
     return result.returncode == 0
 
 
-def prepare_worktree(root: Path, task: dict[str, Any]) -> tuple[Path, str]:
+def prepare_clone(
+    root: Path,
+    task: dict[str, Any],
+    *,
+    base_branch: str,
+    remote: str,
+) -> tuple[Path, str]:
     issue = int(task["issue"])
     slug = slugify(str(task.get("slug") or task.get("task_id") or issue))
     branch = f"agent/{issue}-{slug}"
-    worktree = root.parent / f"{root.name}-task-{issue}"
+    workspace = root.parent / f"{root.name}-task-{issue}"
 
-    if worktree.exists():
-        # Reuse only if it is already a Git worktree for the expected branch.
-        try:
-            actual = cmd(
-                ["git", "branch", "--show-current"], cwd=worktree
-            ).stdout.strip()
-        except Exception as exc:
-            raise DispatchError(
-                f"Worktree path exists but is not usable: {worktree}"
-            ) from exc
-        if actual != branch:
-            raise DispatchError(
-                f"{worktree} already exists on branch '{actual}', expected '{branch}'."
-            )
-        return worktree, branch
+    if workspace.exists():
+        shutil.rmtree(workspace)
 
-    if branch_exists(root, branch):
-        cmd(["git", "worktree", "add", str(worktree), branch], cwd=root)
-    elif remote_branch_exists(root, branch):
-        cmd(["git", "branch", "--track", branch, f"origin/{branch}"], cwd=root)
-        cmd(["git", "worktree", "add", str(worktree), branch], cwd=root)
+    if remote_branch_exists(root, branch):
+        cmd(
+            [
+                "git",
+                "clone",
+                "--branch",
+                branch,
+                "--single-branch",
+                remote,
+                str(workspace),
+            ],
+            cwd=root.parent,
+        )
     else:
-        cmd(["git", "worktree", "add", "-b", branch, str(worktree), "HEAD"], cwd=root)
+        cmd(
+            [
+                "git",
+                "clone",
+                "--branch",
+                base_branch,
+                "--single-branch",
+                remote,
+                str(workspace),
+            ],
+            cwd=root.parent,
+        )
+        cmd(["git", "checkout", "-b", branch], cwd=workspace)
 
-    return worktree, branch
+    actual = cmd(["git", "branch", "--show-current"], cwd=workspace).stdout.strip()
+    if actual != branch:
+        raise DispatchError(
+            f"Isolated clone for issue #{issue} is on '{actual}', expected '{branch}'."
+        )
+
+    return workspace, branch
 
 
 def build_prompt(
-    task: dict[str, Any], issue: dict[str, Any], branch: str, base_branch: str
+    task: dict[str, Any],
+    issue: dict[str, Any],
+    branch: str,
+    base_branch: str,
 ) -> str:
     agent = str(task["agent"])
     issue_no = int(task["issue"])
@@ -248,22 +261,23 @@ Before acting, read:
 - PROJECT.md
 - ROADMAP.md
 - {prompt_file}
-- the full GitHub issue with: gh issue view {issue_no}
+
+The full GitHub issue is included below.
 
 Implement ONLY GitHub issue #{issue_no} and satisfy every acceptance criterion.
 
 Execution rules:
-- The dispatcher already prepared branch `{branch}` and the current worktree.
-- Do not create, delete, or switch worktrees.
+- You are already inside an isolated clone on branch `{branch}`.
+- Verify the current branch before making changes.
+- Do not create worktrees or additional clones.
 - Do not switch branches.
 - Do not modify `.automation/queue.yaml`.
 - Do not implement downstream issues.
-- Do not use another agent/model unless the repository instructions explicitly require it.
 - Never commit secrets, credentials, tokens, raw sensitive data, or unrelated files.
-- Run the relevant tests/lint/type checks before finishing.
-- If blocked or uncertain about a critical assumption, stop and report BLOCKED instead of guessing.
+- Run relevant validation before finishing.
+- If blocked by a critical assumption, stop and report BLOCKED instead of guessing.
 
-When implementation is valid:
+When implementation is complete:
 1. inspect the diff for unrelated changes;
 2. commit the issue-scoped changes;
 3. push branch `{branch}`;
@@ -314,7 +328,7 @@ def run_agent(
     root: Path,
     repo: str,
     task: dict[str, Any],
-    worktree: Path,
+    workspace: Path,
     branch: str,
     base_branch: str,
     timeout_minutes: int,
@@ -346,12 +360,13 @@ def run_agent(
     with log_path.open("w", encoding="utf-8") as log:
         process = subprocess.Popen(
             args,
-            cwd=worktree,
+            cwd=workspace,
             text=True,
             stdout=log,
             stderr=subprocess.STDOUT,
             start_new_session=True,
         )
+
         try:
             return_code = process.wait(timeout=timeout_minutes * 60)
             timed_out = False
@@ -367,17 +382,32 @@ def run_agent(
                     pass
             return_code = 124
 
-    pr = open_pr(root, repo, branch)
+    remote_branch = remote_branch_exists(root, branch)
+    pr = open_pr(root, repo, branch) if remote_branch else None
+
+    if timed_out:
+        final_status = "TIMEOUT"
+    elif return_code != 0:
+        final_status = f"EXIT {return_code}"
+    elif not remote_branch:
+        final_status = "INCOMPLETE"
+    elif not pr:
+        final_status = "INCOMPLETE"
+    else:
+        final_status = "OK"
+
     return {
         "issue": issue_no,
         "task_id": task.get("task_id"),
         "agent": agent,
         "branch": branch,
-        "worktree": str(worktree),
+        "workspace": str(workspace),
         "return_code": return_code,
         "timed_out": timed_out,
+        "remote_branch": remote_branch,
         "log": str(log_path),
         "pr": pr,
+        "status": final_status,
     }
 
 
@@ -413,8 +443,10 @@ def select_tasks(
 
     for task in queue.get("tasks", []):
         issue_no = int(task["issue"])
+
         if requested_issues and issue_no not in requested_issues:
             continue
+
         if str(task.get("status", "")).upper() != "READY":
             continue
 
@@ -436,6 +468,7 @@ def select_tasks(
             continue
 
         selected.append(task)
+
         if len(selected) >= max_parallel:
             break
 
@@ -480,7 +513,9 @@ def main() -> int:
 
         ensure_repo_safe(root, base_branch)
         cmd(["gh", "auth", "status"], cwd=root)
+
         repo = repo_name_with_owner(root)
+        remote = origin_url(root)
 
         if args.status:
             print_status(root, repo, queue)
@@ -493,6 +528,7 @@ def main() -> int:
             set(args.issue),
             max_parallel,
         )
+
         if not selected:
             print("No dispatchable READY tasks.")
             return 0
@@ -505,16 +541,23 @@ def main() -> int:
             )
 
         if args.dry_run:
-            print("\nDry run only. No worktrees or agents were started.")
+            print("\nDry run only. No isolated clones or agents were started.")
             return 0
 
         prepared: list[tuple[dict[str, Any], Path, str]] = []
+
         for task in selected:
-            worktree, branch = prepare_worktree(root, task)
-            prepared.append((task, worktree, branch))
-            print(f"Prepared {task.get('task_id')}: {worktree} [{branch}]")
+            workspace, branch = prepare_clone(
+                root,
+                task,
+                base_branch=base_branch,
+                remote=remote,
+            )
+            prepared.append((task, workspace, branch))
+            print(f"Prepared {task.get('task_id')}: {workspace} [{branch}]")
 
         results: list[dict[str, Any]] = []
+
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=len(prepared)
         ) as executor:
@@ -524,34 +567,42 @@ def main() -> int:
                     root=root,
                     repo=repo,
                     task=task,
-                    worktree=worktree,
+                    workspace=workspace,
                     branch=branch,
                     base_branch=base_branch,
                     timeout_minutes=timeout_minutes,
                     auto_approve=not args.no_auto,
                 )
-                for task, worktree, branch in prepared
+                for task, workspace, branch in prepared
             ]
+
             for future in concurrent.futures.as_completed(futures):
                 results.append(future.result())
 
         print("\nResults:")
+
+        exit_code = 0
+
         for result in sorted(results, key=lambda x: x["issue"]):
-            status = "TIMEOUT" if result["timed_out"] else (
-                "OK" if result["return_code"] == 0 else f"EXIT {result['return_code']}"
-            )
             print(
-                f"  {result['task_id']} #{result['issue']}: {status}\n"
+                f"  {result['task_id']} #{result['issue']}: {result['status']}\n"
                 f"    agent: {result['agent']}\n"
                 f"    branch: {result['branch']}\n"
+                f"    workspace: {result['workspace']}\n"
                 f"    log: {result['log']}"
             )
+
             if result["pr"]:
                 print(f"    PR: {result['pr']['url']}")
+            elif result["remote_branch"]:
+                print("    PR: not found (remote branch exists)")
             else:
-                print("    PR: not found — inspect the log/worktree.")
+                print("    PR: not found (remote branch also missing)")
 
-        return 0
+            if result["status"] != "OK":
+                exit_code = 1
+
+        return exit_code
 
     except DispatchError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

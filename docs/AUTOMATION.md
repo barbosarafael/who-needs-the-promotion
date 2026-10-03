@@ -1,58 +1,44 @@
-# Automatic agent dispatcher
+# Dispatcher V2 — isolated clones
 
-This overlay automates the repetitive part of the agent workflow:
+This version replaces Git worktrees with fully isolated Git clones.
+
+## Why
+
+Some OpenCode setups resolve the project root back to the original repository even when launched from a worktree. That can make an agent see `main` instead of its issue branch.
+
+The V2 dispatcher avoids that class of problem:
 
 ```text
-READY GitHub Issues
-        ↓
-dispatcher
-        ↓
-create branch + worktree
-        ↓
-launch the correct OpenCode agent
-        ↓
-agents run concurrently (max 2)
-        ↓
-commit + push + PR
+main repository
+    |
+    +--> independent clone for T1
+    |       branch agent/1-...
+    |
+    +--> independent clone for T2
+            branch agent/2-...
 ```
 
-It does **not** automatically merge PRs or approve human checkpoints.
+Each clone has its own `.git` directory.
 
-## Files
+## Replace the old dispatcher
 
-- `.automation/queue.yaml`: machine-readable execution queue.
-- `.automation/ORCHESTRATOR_QUEUE_PROMPT.md`: prompt for synchronizing the queue.
-- `scripts/dispatch_ready.py`: dispatcher.
-- `scripts/requirements-automation.txt`: Python dependency.
+Copy these files into the project:
 
-## One-time setup
+- `scripts/dispatch_ready.py`
+- `scripts/cleanup_task_clones.py`
 
-```bash
-python -m pip install -r scripts/requirements-automation.txt
-```
+## Before running
 
-Confirm:
+The main repository must be:
 
-```bash
-gh auth status
-opencode agent list
-```
+- on `main`;
+- clean;
+- synchronized with `origin/main`;
+- free of merge-conflict markers.
 
-## Before every dispatch
-
-The dispatcher intentionally requires:
-
-- current branch = `main`;
-- clean Git working tree;
-- local `main` exactly equal to `origin/main`;
-- no unresolved conflict markers in `PROJECT.md` or `ROADMAP.md`.
-
-This prevents agents from branching from stale or ambiguous project state.
-
-## Inspect what will run
+## Dry run
 
 ```bash
-python scripts/dispatch_ready.py --status
 python scripts/dispatch_ready.py --dry-run
 ```
 
@@ -62,78 +48,38 @@ python scripts/dispatch_ready.py --dry-run
 python scripts/dispatch_ready.py
 ```
 
-It selects at most two tasks whose `status` is `READY`, verifies their dependencies and human checkpoints, creates isolated worktrees, and starts the configured OpenCode agents in parallel.
+## Success semantics
 
-To dispatch specific READY tasks:
+A task is `OK` only when all of these are true:
 
-```bash
-python scripts/dispatch_ready.py --issue 1 --issue 2
-```
+1. OpenCode exits successfully;
+2. the issue branch exists on the remote;
+3. an open PR exists for that branch.
 
-## What OpenCode runs
+If OpenCode exits 0 but no PR exists, the dispatcher reports `INCOMPLETE`.
 
-Conceptually:
+## GitHub Issue retrieval
 
-```bash
-opencode run \
-  --agent data \
-  --dir ../who-needs-the-promotion-task-1 \
-  --auto \
-  "<issue-scoped prompt>"
-```
-
-The dispatcher does **not** pass `--model`. The model comes from the project's `.opencode/agents/<agent>.md` configuration.
-
-OpenCode documents `opencode run` as its non-interactive automation interface and supports `--agent`, `--dir`, and `--auto`.
-
-## Output
-
-Logs are written to:
-
-```text
-.automation/logs/
-```
-
-They are ignored by Git.
-
-Each worker is instructed to:
-
-1. implement only its assigned issue;
-2. validate the work;
-3. commit;
-4. push its branch;
-5. open a PR containing `Closes #<issue>`.
-
-## After PR review / merge
-
-Once work is accepted and the corresponding issue is closed, run the Orchestrator using:
-
-```text
-Read .automation/ORCHESTRATOR_QUEUE_PROMPT.md and synchronize the queue.
-```
-
-Then commit/push the updated `ROADMAP.md` and `.automation/queue.yaml`.
-
-The next call to:
+V2 uses the GitHub REST API through:
 
 ```bash
-python scripts/dispatch_ready.py
+gh api repos/<owner>/<repo>/issues/<number>
 ```
 
-will launch the newly authorized READY tasks.
+This avoids the Projects Classic GraphQL problem that may occur with `gh issue view`.
 
-## Safety
+## Cleanup task clones
 
-`--auto` is required for unattended non-interactive work because otherwise an agent may wait for a permission prompt.
-
-If you want permission prompts instead:
+After PRs are merged and the task clones are no longer needed:
 
 ```bash
-python scripts/dispatch_ready.py --no-auto
+python scripts/cleanup_task_clones.py --issue 1 --issue 2
 ```
 
-The dispatcher has a default per-agent runtime limit of 60 minutes in `queue.yaml`.
+Or:
 
-## Important
+```bash
+python scripts/cleanup_task_clones.py --all
+```
 
-`queue.yaml` deliberately uses explicit `READY` / `BLOCKED` statuses instead of automatically deriving the entire causal-project DAG. Some tasks, especially T9, depend on methodological decisions that should remain with the Orchestrator/human checkpoint rather than a generic script.
+This removes only the isolated task directories, not remote branches or PRs.
