@@ -358,9 +358,14 @@ def run_agent(
     args.append(prompt)
 
     with log_path.open("w", encoding="utf-8") as log:
+        env = os.environ.copy()
+        env["PWD"] = str(workspace)
+        env["INIT_CWD"] = str(workspace)
+
         process = subprocess.Popen(
             args,
             cwd=workspace,
+            env=env,
             text=True,
             stdout=log,
             stderr=subprocess.STDOUT,

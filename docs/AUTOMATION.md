@@ -83,3 +83,18 @@ python scripts/cleanup_task_clones.py --all
 ```
 
 This removes only the isolated task directories, not remote branches or PRs.
+
+# Dispatcher update
+
+This version explicitly sets `PWD` and `INIT_CWD` to the isolated clone before starting OpenCode, in addition to using `cwd=workspace` and `--standalone`.
+
+This addresses environments where the CLI resolves the project root from inherited environment variables rather than only the process working directory.
+
+After replacing the dispatcher, test one issue first:
+
+```bash
+python scripts/cleanup_task_clones.py --all
+python scripts/dispatch_ready.py --issue 1 --max-parallel 1
+```
+
+Then inspect the newest issue log and confirm the agent reports branch `agent/1-data-contract`.
