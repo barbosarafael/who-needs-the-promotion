@@ -1,0 +1,72 @@
+name: Agent Task
+description: Implementation or analysis task for an agent
+title: "[TASK] "
+labels: ["agent-task"]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: What must this task accomplish?
+      placeholder: Implement...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Relevant project context, assumptions and references.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Assigned agent
+      options:
+        - DATA
+        - DS
+        - ML
+        - REVIEWER
+        - ORCHESTRATOR
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List issue numbers that must be completed first, or write None.
+      placeholder: "#10, #11"
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Files likely affected
+      description: Expected areas/files to reduce conflicts between parallel agents.
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Expected output
+      description: What artifact, code or result should exist when complete?
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Use a checklist with objective conditions.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks / notes
+      description: Known methodological, data or engineering risks.
