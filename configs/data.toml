@@ -1,0 +1,32 @@
+# T1 data acquisition and storage configuration.
+# Replace the revision/checksums after H0-approved acquisition. Do not put
+# credentials or local absolute paths in this file.
+
+[dataset]
+name = "retailhero-uplift"
+source_uri = "https://huggingface.co/datasets/pytorch-lifestream/retailhero-uplift"
+source_revision = "REPLACE_WITH_APPROVED_REVISION_OR_COMMIT"
+retrieved_at_utc = "REPLACE_WITH_UTC_TIMESTAMP"
+manifest_path = "configs/data_manifest.toml"
+
+[paths]
+raw_root = "data/raw"
+interim_root = "data/interim"
+processed_root = "data/processed"
+
+[files]
+clients = "clients.csv"
+products = "products.csv"
+purchases = "purchases.csv"
+uplift_train = "uplift_train.csv"
+uplift_test = "uplift_test.csv"
+
+[format]
+type = "csv"
+delimiter = ";"
+encoding = "utf-8"
+
+[processing]
+engine = "spark"
+customer_output = "data/processed/customer_modeling.parquet"
+transaction_aggregate_output = "data/interim/customer_transaction_aggregates.parquet"

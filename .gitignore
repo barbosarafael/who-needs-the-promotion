@@ -272,3 +272,11 @@ dist/
 # Jupyter
 .ipynb_checkpoints/
 >>>>>>> d08fd94b5ab0eb494311f5b1d75b124f556c1c9c
+
+# Project data paths (raw data and generated artifacts must never be committed).
+data/raw/**
+data/interim/**
+data/processed/**
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep

@@ -1,0 +1,15 @@
+# Versioned manifest template. This file records provenance, not data.
+# Copy/update it for each approved acquisition and fill every checksum.
+
+[dataset]
+name = "retailhero-uplift"
+source_uri = "https://huggingface.co/datasets/pytorch-lifestream/retailhero-uplift"
+source_revision = "REPLACE_WITH_APPROVED_REVISION_OR_COMMIT"
+retrieved_at_utc = "REPLACE_WITH_UTC_TIMESTAMP"
+
+[checksums.sha256]
+clients = "REPLACE_WITH_SHA256"
+products = "REPLACE_WITH_SHA256"
+purchases = "REPLACE_WITH_SHA256"
+uplift_train = "REPLACE_WITH_SHA256"
+uplift_test = "REPLACE_WITH_SHA256"

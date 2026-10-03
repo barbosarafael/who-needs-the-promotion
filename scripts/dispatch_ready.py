@@ -333,6 +333,7 @@ def run_agent(
     args = [
         "opencode",
         "run",
+        "--standalone",
         "--agent",
         agent,
         "--title",
@@ -345,7 +346,7 @@ def run_agent(
     with log_path.open("w", encoding="utf-8") as log:
         process = subprocess.Popen(
             args,
-            cwd=root,
+            cwd=worktree,
             text=True,
             stdout=log,
             stderr=subprocess.STDOUT,
