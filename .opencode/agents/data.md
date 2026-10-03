@@ -2,7 +2,7 @@
 description: Handles ingestion, validation, data quality, EDA and data preparation
 mode: subagent
 model: openai/gpt-6-luna
-steps: 12
+steps: 25
 permissions:
   - action: edit
     resource: "*"
