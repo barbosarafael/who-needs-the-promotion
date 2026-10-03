@@ -7,6 +7,7 @@ name = "retailhero-uplift"
 source_uri = "https://huggingface.co/datasets/pytorch-lifestream/retailhero-uplift"
 source_revision = "REPLACE_WITH_APPROVED_REVISION_OR_COMMIT"
 retrieved_at_utc = "REPLACE_WITH_UTC_TIMESTAMP"
+checksum_algorithm = "sha256"
 manifest_path = "configs/data_manifest.toml"
 
 [paths]
@@ -30,3 +31,9 @@ encoding = "utf-8"
 engine = "spark"
 customer_output = "data/processed/customer_modeling.parquet"
 transaction_aggregate_output = "data/interim/customer_transaction_aggregates.parquet"
+
+[validation]
+# Invariants are checked by T3 against the approved source revision.
+modeling_grain = "one row per client_id per split"
+purchase_duplicate_key = ["client_id", "transaction_datetime", "product_id"]
+require_disjoint_modeling_splits = true

@@ -6,6 +6,7 @@ name = "retailhero-uplift"
 source_uri = "https://huggingface.co/datasets/pytorch-lifestream/retailhero-uplift"
 source_revision = "REPLACE_WITH_APPROVED_REVISION_OR_COMMIT"
 retrieved_at_utc = "REPLACE_WITH_UTC_TIMESTAMP"
+checksum_algorithm = "sha256"
 
 [checksums.sha256]
 clients = "REPLACE_WITH_SHA256"
@@ -13,3 +14,24 @@ products = "REPLACE_WITH_SHA256"
 purchases = "REPLACE_WITH_SHA256"
 uplift_train = "REPLACE_WITH_SHA256"
 uplift_test = "REPLACE_WITH_SHA256"
+
+[observed]
+# Populate after acquisition/profile; values are intentionally not guessed.
+row_counts = "REPLACE_WITH_ROW_COUNTS_JSON_OR_TABLE"
+schema_hash = "REPLACE_WITH_SCHEMA_SHA256"
+
+[artifacts.customer_modeling]
+path = "data/processed/customer_modeling.parquet"
+grain = "one row per client_id"
+row_count = "REPLACE_WITH_ROW_COUNT"
+sha256 = "REPLACE_WITH_SHA256"
+
+[artifacts.transaction_aggregates]
+path = "data/interim/customer_transaction_aggregates.parquet"
+grain = "one row per client_id (or approved client/time window)"
+row_count = "REPLACE_WITH_ROW_COUNT"
+sha256 = "REPLACE_WITH_SHA256"
+
+[generation]
+code_version = "REPLACE_WITH_GIT_COMMIT"
+generated_at_utc = "REPLACE_WITH_UTC_TIMESTAMP"
