@@ -119,3 +119,16 @@ O CI roda automaticamente em pushes para `main` e em pull requests. Funcionalida
 ## Licença
 
 Consulte [`LICENSE`](LICENSE).
+
+## Data contract (T1)
+
+The approved-source configuration is in `configs/data.toml`; provenance and
+artifact checksums belong in `configs/data_manifest.toml`. Raw, interim, and
+processed data paths are configurable (including `DATA_RAW_ROOT`,
+`DATA_INTERIM_ROOT`, and `DATA_PROCESSED_ROOT`) and are ignored by Git.
+
+See [`docs/data_contract.md`](docs/data_contract.md) for table grains, required
+columns, joins, duplicate checks, Spark aggregation, and the customer-level
+persisted artifact strategy. The revision, retrieval timestamp, checksums,
+observed row counts, and schema hash must be filled only after H0-approved
+acquisition; placeholders are deliberate.
