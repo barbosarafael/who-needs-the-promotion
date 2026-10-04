@@ -1,0 +1,35 @@
+# Runtime-only settings; authentication comes from an existing Databricks CLI profile.
+# Supply an existing profile with --profile (or DATABRICKS_CONFIG_PROFILE).
+# No workspace-specific profile or warehouse ID is committed here.
+[retailhero]
+catalog = "workspace"
+bronze_schema = "retailhero_bronze"
+silver_schema = "retailhero_silver"
+gold_schema = "retailhero_gold"
+staging_root = "/Volumes/workspace/default/retailhero_staging"
+source_revision = "7744156a4f89f4828607921e8c9668f04801f4de"
+
+[retailhero.sources.clients]
+rows = 400162
+sha256 = "b8985170e03dc65fa532fb6b8ca6dd70ea5c30c35ea7c1019ee6ea2034d04099"
+columns = ["client_id", "first_issue_date", "first_redeem_date", "age", "gender"]
+
+[retailhero.sources.products]
+rows = 43038
+sha256 = "6b72e025ff77974940ebdba63998a4349ae290a33efeb41f29989fdea6e96573"
+columns = ["product_id", "level_1", "level_2", "level_3", "level_4", "segment_id", "brand_id", "vendor_id", "netto", "is_own_trademark", "is_alcohol"]
+
+[retailhero.sources.purchases]
+rows = 45786568
+sha256 = "1342e14e1aa9d39dc242f1b66c903f0576fd184af9dc5a3bbe932607dc2d8aba"
+columns = ["client_id", "transaction_id", "transaction_datetime", "regular_points_received", "express_points_received", "regular_points_spent", "express_points_spent", "purchase_sum", "store_id", "product_id", "product_quantity", "trn_sum_from_iss", "trn_sum_from_red"]
+
+[retailhero.sources.uplift_train]
+rows = 200039
+sha256 = "23aced68634c605acb93a7ab450aabac1a0ce0c8104e59ffed9941109ddc4ccd"
+columns = ["client_id", "treatment_flg", "target"]
+
+[retailhero.sources.uplift_test]
+rows = 200123
+sha256 = "8b98fe6ee94478253f40e7ed7ebbbefeb47c78ab37fd41111f3b35b8b69373e0"
+columns = ["client_id"]
