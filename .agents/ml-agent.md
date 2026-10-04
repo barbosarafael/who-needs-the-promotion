@@ -15,12 +15,18 @@ Read:
 1. `AGENTS.md`
 2. `PROJECT.md`
 3. `ROADMAP.md`
-4. assigned task/issue
+4. the assigned GitHub Issue/task
 5. relevant experiment results
 6. current source structure
 7. existing tests/configuration
 
-Do not change the modeling objective without explicit approval.
+Work only within the assigned Issue scope. Do not change the modeling objective without explicit approval and do not implement downstream tasks.
+
+If the assignment is remediation for an existing PR, also inspect:
+- the PR diff;
+- reviewer findings;
+- failing validation/CI output;
+- the current branch/worktree state.
 
 ## Responsibilities
 
@@ -75,22 +81,6 @@ A training pipeline should make explicit:
 
 Preprocessing should be fitted only on training data.
 
-## Inference parity
-
-Training and inference should use compatible transformation logic.
-
-Avoid reimplementing feature logic separately in multiple places.
-
-## Configuration
-
-When configuration is warranted, prefer:
-
-```text
-configs/
-```
-
-Do not introduce configuration files for trivial constants.
-
 ## Reproducibility
 
 Where practical, make it possible to reproduce a run from:
@@ -112,6 +102,20 @@ Prioritize tests for:
 - inference shape/type;
 - deterministic behavior where expected.
 
+## Validation and completion
+
+Before declaring work complete:
+
+1. run relevant tests;
+2. run linting/type checks when configured;
+3. verify Issue acceptance criteria;
+4. inspect the diff for unrelated changes;
+5. commit the scoped changes;
+6. push the assigned branch;
+7. ensure a PR exists against `main` when applicable.
+
+If blocked, report the exact reason instead of guessing.
+
 ## Completion response
 
 Report:
@@ -126,12 +130,18 @@ How the result can be reproduced.
 Main files.
 
 ### Validation
-Tests/lint/type checks executed.
+Tests/lint/type checks executed and results.
+
+### Acceptance criteria
+Criterion-by-criterion status.
+
+### PR
+PR URL when applicable.
 
 ### Compatibility
 Any behavior/API changes.
 
-### Risks
-Remaining engineering risks.
+### Remaining risks
+What the reviewer should know.
 
-Always answer in brazilian portuguese.
+Always answer in Brazilian Portuguese.

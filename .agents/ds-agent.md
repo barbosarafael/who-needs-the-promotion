@@ -15,83 +15,52 @@ Read:
 1. `AGENTS.md`
 2. `PROJECT.md`
 3. `ROADMAP.md`
-4. assigned task/issue
+4. the assigned GitHub Issue/task
 5. relevant data findings
 6. existing experiments
 7. existing evaluation code
 
-Do not change project scope silently.
+Work only within the assigned Issue scope. Do not silently change project scope or implement downstream tasks.
+
+If the assignment is remediation for an existing PR, also inspect:
+- the PR diff;
+- reviewer findings;
+- failing validation/CI output;
+- the current branch/worktree state.
 
 ## Scientific workflow
 
-For each modeling task:
+For each modeling or causal task:
 
-1. State the hypothesis.
-2. State the baseline.
-3. Define the split strategy.
-4. Define metrics.
-5. Define the experiment.
-6. Run the experiment.
-7. Record results.
-8. Interpret results.
-9. Record limitations.
-10. Decide the next experiment.
+1. State the hypothesis/question.
+2. State the estimand or target when applicable.
+3. State assumptions.
+4. Define the baseline/comparator.
+5. Define the split or identification strategy.
+6. Define metrics/diagnostics.
+7. Run the experiment/analysis.
+8. Record results.
+9. Interpret results.
+10. Record limitations.
+11. Decide the next justified step.
 
 ## Baseline rule
 
 Always establish the simplest defensible baseline first.
 
-Examples:
-
-Classification:
-- majority class;
-- logistic regression;
-- simple decision tree when appropriate.
-
-Regression:
-- mean/median predictor;
-- linear regression.
-
-Forecasting:
-- naive;
-- seasonal naive.
-
-Recommendation:
-- popularity;
-- simple similarity baseline.
-
-Do not jump directly to advanced models without a reason.
+Do not jump directly to advanced methods without a reason.
 
 ## Evaluation rules
 
 Metrics must reflect the project objective.
 
-For classification, consider when relevant:
-
-- ROC-AUC;
-- PR-AUC;
-- precision;
-- recall;
-- F1;
-- calibration;
-- confusion matrix;
-- threshold behavior.
-
-Do not optimize a metric simply because it is common.
-
 For imbalanced problems, do not rely only on accuracy.
+
+For causal work, explicitly distinguish prediction quality from identification validity.
 
 ## Validation rules
 
-Choose split strategy based on data-generating process.
-
-Consider:
-
-- random split;
-- stratified split;
-- grouped split;
-- time split;
-- rolling/expanding validation.
+Choose split/validation strategy based on the data-generating process.
 
 Prevent leakage from:
 
@@ -101,92 +70,75 @@ Prevent leakage from:
 - scaling;
 - imputation;
 - duplicated entities;
-- temporal overlap.
-
-## Experiment documentation
-
-Every meaningful experiment must document:
-
-```text
-Experiment:
-Hypothesis:
-Dataset/version:
-Split:
-Features:
-Preprocessing:
-Model:
-Parameters:
-Metrics:
-Results:
-Interpretation:
-Limitations:
-Decision:
-Next step:
-```
-
-Use MLflow when available and useful.
-
-## Model comparison
-
-A more complex model should only replace a simpler one when improvement is meaningful for the project.
-
-Consider:
-
-- metric improvement;
-- variance;
-- calibration;
-- inference cost;
-- interpretability;
-- maintenance;
-- robustness.
-
-Do not declare a model "better" from a tiny unvalidated metric difference.
+- temporal overlap;
+- post-treatment variables.
 
 ## Statistical skepticism
 
 Challenge:
 
-- small sample conclusions;
+- small-sample conclusions;
 - multiple comparisons;
 - unstable segments;
 - target leakage;
 - proxy variables;
 - post-treatment variables;
 - cherry-picked thresholds;
-- overfitting to validation data.
+- overfitting to validation data;
+- unsupported causal claims.
 
 ## Code organization
 
-Reusable training and evaluation code belongs in `src/`.
+Reusable training, causal estimation and evaluation code belongs in `src/`.
 
 Notebooks should explain and orchestrate experiments, not contain all reusable logic.
+
+## Validation and completion
+
+Before declaring work complete:
+
+1. run relevant tests/diagnostics;
+2. run linting/type checks when configured;
+3. verify Issue acceptance criteria;
+4. inspect the diff for unrelated changes;
+5. commit the scoped changes;
+6. push the assigned branch;
+7. ensure a PR exists against `main` when applicable.
+
+If blocked, report the exact methodological or runtime blocker instead of guessing.
 
 ## Completion response
 
 Report:
 
-### Hypothesis
+### Question / hypothesis
 What was tested.
 
-### Experiment
-What was done.
+### Method
+What was done and why.
 
 ### Results
 Measured results only.
 
 ### Interpretation
-What the results support.
+What the evidence supports.
 
 ### Limitations
-What they do not support.
+What it does not support.
 
 ### Implementation
 Files changed.
 
 ### Validation
-Commands/tests executed.
+Commands/tests/diagnostics executed.
 
-### Recommendation for next experiment
-One concrete next step.
+### Acceptance criteria
+Criterion-by-criterion status.
 
-Always answer in brazilian portuguese.
+### PR
+PR URL when applicable.
+
+### Remaining risks
+What the reviewer should know.
+
+Always answer in Brazilian Portuguese.

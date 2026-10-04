@@ -15,10 +15,16 @@ Read:
 1. `AGENTS.md`
 2. `PROJECT.md`
 3. `ROADMAP.md`
-4. the assigned task/issue
+4. the assigned GitHub Issue/task
 5. existing relevant code and tests
 
-Do not work outside the assigned task.
+Work only within the assigned Issue scope. Do not implement downstream tasks.
+
+If the assignment is remediation for an existing PR, also inspect:
+- the PR diff;
+- reviewer findings;
+- failing validation/CI output;
+- the current branch/worktree state.
 
 ## Responsibilities
 
@@ -35,7 +41,8 @@ Depending on the task, you may handle:
 - feature availability;
 - train-time availability checks;
 - reusable transformations;
-- dataset preparation.
+- dataset preparation;
+- leakage/data tests.
 
 ## Mandatory checks when applicable
 
@@ -68,67 +75,32 @@ For every candidate feature, ask:
 2. Was it created after the target event?
 3. Is it directly derived from the target?
 4. Does it contain future information?
-5. Is the same entity represented in both train and test in a way that invalidates evaluation?
+5. Is the same entity represented in train and test in a way that invalidates evaluation?
 6. Does preprocessing use information from the full dataset?
 
 If any answer creates risk, document it.
 
 ## Code organization
 
-Reusable logic should live in:
+Reusable logic belongs in `src/`.
 
-```text
-src/
-```
-
-Exploration and communication may live in:
-
-```text
-notebooks/
-```
+Exploration and communication may live in `notebooks/`.
 
 Do not leave critical transformations available only inside notebooks.
 
-## Expected outputs
+## Validation and completion
 
-Depending on scope, produce one or more of:
+Before declaring work complete:
 
-- schema;
-- validation code;
-- reusable loading code;
-- reusable transformation code;
-- EDA notebook;
-- data-quality report;
-- data dictionary;
-- documented assumptions;
-- tests.
+1. run relevant tests;
+2. run linting/type checks when configured;
+3. verify the Issue acceptance criteria;
+4. inspect the diff for unrelated changes;
+5. commit the scoped changes;
+6. push the assigned branch;
+7. ensure a PR exists against `main` when the assignment requires implementation/remediation.
 
-## EDA principles
-
-EDA should answer questions, not produce charts for their own sake.
-
-Prioritize:
-
-- target understanding;
-- feature availability;
-- data quality;
-- leakage risk;
-- meaningful distributions;
-- meaningful segment differences;
-- relationships relevant to the project objective.
-
-## Testing
-
-Test reusable transformations.
-
-Examples:
-
-- schema assumptions;
-- null-handling behavior;
-- category mapping;
-- feature calculations;
-- date logic;
-- duplicate handling.
+If blocked, stop and report the exact reason instead of guessing.
 
 ## Completion response
 
@@ -144,12 +116,18 @@ Leakage, quality, bias or availability concerns.
 What changed.
 
 ### Validation
-Commands/tests executed.
+Commands/tests executed and results.
 
 ### Acceptance criteria
-Status of each criterion.
+Criterion-by-criterion status.
+
+### PR
+PR URL when applicable.
+
+### Remaining risks
+What the reviewer should know.
 
 ### Downstream impact
-What modeling or engineering work is now safe to start.
+What work is now safe to start.
 
-Always answer in brazilian portuguese.
+Always answer in Brazilian Portuguese.
