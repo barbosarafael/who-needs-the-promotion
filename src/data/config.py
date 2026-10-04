@@ -66,9 +66,13 @@ def load_data_config(
     }
     processing = raw["processing"]
 
-    def resolve_output(value: str, storage_root: Path) -> Path:
+    def resolve_output(value: str, storage_root: Path | None = None) -> Path:
         candidate = Path(value).expanduser()
-        return candidate if candidate.is_absolute() else storage_root / candidate.name
+        if candidate.is_absolute():
+            return candidate
+        if storage_root is None:
+            return root / candidate
+        return storage_root / candidate.name
 
     return DataConfig(
         source_uri=dataset["source_uri"],
