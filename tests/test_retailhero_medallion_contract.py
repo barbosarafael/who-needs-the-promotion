@@ -7,6 +7,11 @@ import gzip
 import tomllib
 from pathlib import Path
 
+from src.databricks_integration.retailhero_sql import (
+    staged_sha256_query,
+    verify_staged_sha256,
+)
+
 ROOT = Path(__file__).parents[1]
 EXPECTED_HEADERS = {
     "clients": ["client_id", "first_issue_date", "first_redeem_date", "age", "gender"],
@@ -52,6 +57,24 @@ def test_manifest_records_expected_source_revision_and_cardinalities() -> None:
         "{clients=400162, products=43038, purchases=45786568, "
         "uplift_train=200039, uplift_test=200123}"
     )
+
+
+def test_staged_sha256_match_and_mismatch_fail_closed() -> None:
+    pinned = "a" * 64
+    assert verify_staged_sha256("clients", pinned.upper(), pinned) == pinned
+    try:
+        verify_staged_sha256("clients", "b" * 64, pinned)
+    except ValueError as error:
+        assert "Staged SHA-256 mismatch for clients" in str(error)
+    else:
+        raise AssertionError("A mismatched staged checksum must fail")
+
+
+def test_sha256_query_hashes_binary_file_and_escapes_path() -> None:
+    query = staged_sha256_query("/Volumes/catalog/schema/it' s.csv.gz")
+    assert "sha2(content, 256)" in query
+    assert "format => 'binaryFile'" in query
+    assert "'/Volumes/catalog/schema/it'' s.csv.gz'" in query
 
 
 def test_small_gzip_csv_fixtures_keep_empty_fields_and_observed_headers(tmp_path: Path) -> None:

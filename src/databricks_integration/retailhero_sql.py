@@ -80,6 +80,28 @@ def quoted_table(full_name: str) -> str:
     return ".".join(f"`{part}`" for part in parts)
 
 
+def sql_string(value: str) -> str:
+    """Escape a value embedded in a Spark SQL string literal."""
+    return "'" + value.replace("'", "''") + "'"
+
+
+def staged_sha256_query(file_path: str) -> str:
+    """Hash the compressed bytes of one staged object using Spark binaryFile."""
+    return (
+        "SELECT path, sha2(content, 256) AS sha256 "
+        f"FROM read_files({sql_string(file_path)}, format => 'binaryFile')"
+    )
+
+
+def verify_staged_sha256(name: str, observed: str, expected: str) -> str:
+    """Fail closed unless the measured compressed-file hash matches its pin."""
+    actual = observed.lower()
+    pinned = expected.lower()
+    if actual != pinned:
+        raise ValueError(f"Staged SHA-256 mismatch for {name}: observed {actual}, expected {pinned}")
+    return actual
+
+
 def run(config_path: Path, profile_override: str | None = None) -> dict[str, Any]:
     """Build Bronze/Silver/Gold from staged files and reconcile all source counts."""
     settings = config(config_path)
@@ -151,11 +173,32 @@ def run(config_path: Path, profile_override: str | None = None) -> dict[str, Any
             "Refusing to replace tables outside the three Issue-owned RetailHero schemas"
         )
 
+    # Preflight every staged object before executing ANY CREATE OR REPLACE.
+    # binaryFile reads each compressed object as bytes; purchases is never
+    # decompressed or collected as rows to the client.
+    source_paths: dict[str, str] = {}
+    observed_digests: dict[str, str] = {}
+    for name, source in sources.items():
+        file_path = f"{root}/{name}.csv.gz"
+        source_paths[name] = file_path
+        expected_digest = str(source["sha256"]).lower()
+        digest_rows = selected_rows(
+            execute_statement(
+                staged_sha256_query(file_path), profile=profile, warehouse_id=warehouse
+            )
+        )
+        if len(digest_rows) != 1 or len(digest_rows[0]) != 2:
+            raise ValueError(
+                f"Expected exactly one staged file for {name}, got {len(digest_rows)} rows"
+            )
+        observed_digest = verify_staged_sha256(name, str(digest_rows[0][1]), expected_digest)
+        observed_digests[name] = observed_digest
+
     for name, source in sources.items():
         expected_columns = list(source["columns"])
         expected_count = int(source["rows"])
-        digest = str(source["sha256"])
-        file_path = f"{root}/{name}.csv.gz"
+        digest = observed_digests[name]
+        file_path = source_paths[name]
         header_response = execute_statement(
             f"SELECT value FROM read_files('{file_path}', format => 'text') LIMIT 1",
             profile=profile,
