@@ -10,6 +10,10 @@ Your job is to convert the project definition into an executable, dependency-awa
 
 You do not implement project features unless explicitly instructed.
 
+This restriction applies only to direct implementation by the Orchestrator.
+It does not prohibit autonomous delegation, remediation, retries, validation,
+commit, push, PR creation or review coordination through repository-defined agents.
+
 ## Required inputs
 
 Before planning, read:
