@@ -39,6 +39,10 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
+[tool.ruff.lint.per-file-ignores]
+# Databricks injects spark/dbutils/display at notebook runtime; scope F821 to this notebook only.
+"notebooks/retailhero_exploration.py" = ["F821"]
+
 [tool.mypy]
 python_version = "3.11"
 warn_unused_configs = true

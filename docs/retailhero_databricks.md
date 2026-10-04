@@ -2,12 +2,11 @@
 
 ## Configuration and execution
 
-`notebooks/retailhero_pipeline.py` contains reusable Spark transforms and
-`notebooks/retailhero_exploration.py` orchestrates the load and structural,
-descriptive checks. They are published as Databricks Python notebooks (the
-exploration notebook `%run`s the helper) and can be run with serverless PySpark.
-Widgets configure the catalog, layer schemas, and UC Volume staging root. Never
-put CLI profiles, tokens, or credentials in the repository.
+`notebooks/retailhero_pipeline.py` contains the ingestion and reusable Spark
+transforms. `notebooks/retailhero_exploration.py` is a read-only exploration of
+the already-published tables; it does not reingest source files. They are
+published as Databricks Python notebooks and can be run with serverless PySpark.
+Never put CLI profiles, tokens, or credentials in the repository.
 
 Source CSV.GZ files are pinned to the Hugging Face revision and verified by the
 SHA-256s in `configs/data_manifest.toml`. Download locally with
@@ -20,9 +19,9 @@ databricks fs cp data/raw/retailhero/ \
 
 To reproduce the publication with the CLI/serverless SQL path in this repo,
 install the project package (or set `PYTHONPATH=src`) and run
-`python scripts/databricks_retailhero_ingest.py`. The profile and warehouse are
-configured in `configs/retailhero_databricks.toml`; credentials remain in the
-user's Databricks CLI authentication store.
+`python scripts/databricks_retailhero_ingest.py --profile <existing-profile>`.
+The warehouse is discovered from the visible serverless-enabled SQL warehouses;
+credentials remain in the user's Databricks CLI authentication store.
 
 Staging contains source data (including customer identifiers); it is not checked
 into Git. Replace the managed Volume/schema choices through notebook widgets in
@@ -49,15 +48,21 @@ No feature, RFM, modeling, or customer-level output is created.
 
 ## Published workspace notebooks
 
-When deployed by the configured CLI profile, the notebooks live at:
+The notebooks were imported to the authenticated user's workspace under:
 
-- `/Users/lul.rafaelbarbosa@gmail.com/retailhero_medallion/retailhero_pipeline`
-- `/Users/lul.rafaelbarbosa@gmail.com/retailhero_medallion/retailhero_exploration`
+- `/Users/<workspace-user>/retailhero_medallion/retailhero_pipeline`
+- `/Users/<workspace-user>/retailhero_medallion/retailhero_exploration`
 
-In the Databricks workspace UI, open **Workspace → Users → your user →
-`retailhero_medallion`**, then select `retailhero_exploration` and run it with
-serverless PySpark. The pipeline helper is called by its relative `%run` path.
+In the Databricks workspace UI, open **Workspace → Users → your user** and
+locate `retailhero_medallion/retailhero_exploration`. Open it, select an
+available interactive serverless PySpark environment, then click **Run all**.
+The placeholder `<workspace-user>` is your workspace user folder, not a literal
+folder name.
 
-The import/run evidence and fully qualified destinations must be recorded in the
-Issue/PR completion summary. Import paths are workspace-user-specific; source
-notebooks in this repository remain canonical.
+Import paths are workspace-user-specific; source notebooks in this repository
+remain canonical. SQL publication was remotely executed and verified. The
+notebook was successfully imported and export-verified, but its attempted
+serverless job launch failed with `INVALID_PARAMETER_VALUE`: submitted REPL
+environment `Client-1` is unsupported by this workspace. Notebook execution has
+not succeeded. Use the interactive UI navigation above and select an available
+serverless PySpark environment; no undocumented REST/job protocol was used.
