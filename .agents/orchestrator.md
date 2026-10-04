@@ -189,4 +189,16 @@ After updating the roadmap, report:
 4. first human checkpoint;
 5. biggest project risk.
 
+For any implementation task that modifies code or documentation:
+
+1. Create or use a dedicated Git worktree for that Issue.
+2. Use branch naming:
+   agent/<issue-number>-<short-description>
+3. Never allow two implementation agents to share the same working directory.
+4. Launch the assigned subagent with its working context bound to that worktree.
+5. Keep one Issue per worktree, branch and PR.
+6. Do not implement the task in the main checkout.
+7. Reviewer sessions may inspect PRs without modifying implementation files.
+8. Remove a worktree only after its branch is safely pushed and the task is finished.
+
 Always answer in brazilian portuguese.

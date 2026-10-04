@@ -1,19 +1,32 @@
 {
   "$schema": "https://opencode.ai/config.json",
 
-  "model": "openai/gpt-5.6-luna",
+  "model": "openai/gpt-6-luna",
   "small_model": "openai/gpt-5.6-luna",
 
-  "default_agent": "plan",
-
+  "default_agent": "orchestrator",
+  
   "subagent_depth": 1,
 
+  "worktree": {
+    "directory": "../worktrees"
+  },
+
   "agents": {
-    "build": {
-      "model": "openai/gpt-5.6-luna"
+    "orchestrator": {
+      "model": "openai/gpt-6-luna"
     },
-    "plan": {
-      "model": "openai/gpt-5.6-luna"
+    "data": {
+      "model": "openai/gpt-6-luna"
+    },
+    "ds": {
+      "model": "openai/gpt-6-luna"
+    },
+    "ml": {
+      "model": "openai/gpt-6-luna"
+    },
+    "reviewer": {
+      "model": "openai/gpt-6-luna"
     }
   }
 }
