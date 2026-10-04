@@ -66,9 +66,9 @@ def load_data_config(
     }
     processing = raw["processing"]
 
-    def resolve_output(value: str) -> Path:
+    def resolve_output(value: str, storage_root: Path) -> Path:
         candidate = Path(value).expanduser()
-        return candidate if candidate.is_absolute() else root / candidate
+        return candidate if candidate.is_absolute() else storage_root / candidate.name
 
     return DataConfig(
         source_uri=dataset["source_uri"],
@@ -80,8 +80,10 @@ def load_data_config(
         delimiter=raw["format"]["delimiter"],
         encoding=raw["format"]["encoding"],
         engine=processing["engine"],
-        customer_output=resolve_output(processing["customer_output"]),
+        customer_output=resolve_output(
+            processing["customer_output"], paths["processed_root"]
+        ),
         transaction_aggregate_output=resolve_output(
-            processing["transaction_aggregate_output"]
+            processing["transaction_aggregate_output"], paths["interim_root"]
         ),
     )

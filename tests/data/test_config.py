@@ -32,3 +32,7 @@ def test_environment_overrides_are_supported() -> None:
     assert config.raw_root == Path("/mnt/raw")
     assert config.interim_root == Path("/mnt/interim")
     assert config.processed_root == Path("/mnt/processed")
+    assert config.customer_output == Path("/mnt/processed/customer_modeling.parquet")
+    assert config.transaction_aggregate_output == Path(
+        "/mnt/interim/customer_transaction_aggregates.parquet"
+    )
