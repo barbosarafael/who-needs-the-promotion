@@ -12,7 +12,7 @@ Profiles were calculated by streaming through the complete gzip CSV contents wit
 |---|---:|---|---|---|
 | clients | 400,162 | `client_id`, `first_issue_date`, `first_redeem_date`, `age`, `gender` | `first_redeem_date`: 35,469 | `client_id` distinct 400,162; duplicate key rows 0 |
 | products | 43,038 | `product_id`, `level_1`, `level_2`, `level_3`, `level_4`, `segment_id`, `brand_id`, `vendor_id`, `netto`, `is_own_trademark`, `is_alcohol` | `brand_id`: 5,200; `segment_id`: 1,572; `vendor_id`: 34; each of `level_1`–`level_4` and `netto`: 3 | `product_id` distinct 43,038; duplicate key rows 0 |
-| purchases | 45,786,568 | `client_id`, `transaction_id`, `transaction_datetime`, `regular_points_received`, `express_points_received`, `regular_points_spent`, `express_points_spent`, `purchase_sum`, `store_id`, `product_id`, `product_quantity`, `trn_sum_from_iss`, `trn_sum_from_red` | `trn_sum_from_red`: 42,743,212 | Full row scan completed; key-level transaction uniqueness and referential joins were not profiled |
+| purchases | 45,786,568 | `client_id`, `transaction_id`, `transaction_datetime`, `regular_points_received`, `express_points_received`, `regular_points_spent`, `express_points_spent`, `purchase_sum`, `store_id`, `product_id`, `product_quantity`, `trn_sum_from_iss`, `trn_sum_from_red` | `trn_sum_from_red`: 42,743,212 | Composite candidate key and referential integrity measured below |
 | uplift_train | 200,039 | `client_id`, `treatment_flg`, `target` | none | `client_id` distinct 200,039; duplicate rows 0; treatment rate 0.4998075; target rate 0.6198891 |
 | uplift_test | 200,123 | `client_id` | none | `client_id` distinct 200,123; duplicate rows 0; assignment/outcome rates unavailable because fields are absent |
 
@@ -20,7 +20,19 @@ Train and test `client_id` overlap: **0**. The measured source schemas and row t
 
 ## Join, quality, and temporal findings
 
-The customer and product key columns are unique within their respective dimension tables, and the labeled splits have one row per client with no cross-split overlap. This does not establish that every purchase foreign key resolves: purchase-to-client/product referential integrity, transaction-grain uniqueness, field ranges, and duplicate purchase business keys remain unchecked. The very high missingness in `trn_sum_from_red` and missing product attributes need interpretation before feature use.
+The configured candidate purchase business key is `(client_id, transaction_datetime, product_id)`. Integrity profiling measures duplicate rows and duplicate key groups and checks both foreign keys against their dimensions using disk-backed SQLite while streaming purchases. Duplicate rows count rows beyond the first occurrence. Dimension key uniqueness determines whether the observed relationship is many-to-one; orphan counts are unmatched purchase rows. The candidate key is an audit hypothesis, not a confirmed semantic transaction grain. The very high missingness in `trn_sum_from_red` and missing product attributes need interpretation before feature use.
+
+### Measured purchase-key and join audit
+
+| Check | Measured result |
+|---|---:|
+| Candidate key (from `configs/data.toml`) | `client_id, transaction_datetime, product_id` |
+| Duplicate candidate-key rows (rows beyond first key occurrence) | **4** |
+| Duplicate candidate-key groups | **4** |
+| Orphan purchases.client_id → clients.client_id | **0** |
+| Client dimension key uniqueness / observed cardinality | **Unique; many-to-one** |
+| Orphan purchases.product_id → products.product_id | **0** |
+| Product dimension key uniqueness / observed cardinality | **Unique; many-to-one** |
 
 Temporal classification remains unresolved. Available timestamps are in the client and purchase tables (`first_issue_date`, `first_redeem_date`, `transaction_datetime`), but the source material examined does not establish which is the promotion assignment time, the outcome window, or whether these fields precede assignment. Therefore `clients`, `products`, and `purchases` remain **unknown** relative to treatment; the train table contains treatment/outcome labels with no proven temporal anchor, and the test table contains IDs only. No temporal cutoff is selected and no candidate covariate or purchase feature is approved as pre-treatment. H1 must resolve this before feature engineering or causal modeling.
 
@@ -30,4 +42,4 @@ Temporal classification remains unresolved. Available timestamps are in the clie
 
 ## Remaining audit limits
 
-This is a source-level schema/grain and basic missingness profile, not a full data-quality certification. Purchase key integrity and joins, value-domain validation, treatment/outcome rates by groups, timestamp semantics, and confirmation of the outcome-generating process remain open. The dataset test split contains no labels in the acquired source file.
+This is a source-level schema/grain and basic missingness profile, not a full data-quality certification. Value-domain validation, treatment/outcome rates by groups, timestamp semantics, and confirmation of the outcome-generating process remain open. The dataset test split contains no labels in the acquired source file.

@@ -18,6 +18,9 @@ def test_config_resolves_repository_paths_and_required_inputs() -> None:
     }
     assert config.delimiter == ","
     assert config.engine == "spark"
+    assert config.purchase_duplicate_key == (
+        "client_id", "transaction_datetime", "product_id"
+    )
 
 
 def test_environment_overrides_are_supported() -> None:
