@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="560" viewBox="0 0 1120 560" role="img" aria-labelledby="title desc">
+  <title id="title">Provisional causal DAG for promotional treatment</title>
+  <desc id="desc">Baseline customer characteristics and latent intent affect treatment assignment and outcome. Treatment affects outcome directly and through a post-treatment mediator. Eligibility affects observed selection.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#334155"/></marker>
+    <style>.node{stroke:#1e293b;stroke-width:2}.pre{fill:#dbeafe}.post{fill:#fee2e2}.latent{fill:#fef3c7;stroke-dasharray:6 4}.selection{fill:#e2e8f0}.edge{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow)}.dashed{stroke-dasharray:8 6}.label{font:16px sans-serif;fill:#0f172a}.small{font:13px sans-serif;fill:#475569}</style>
+  </defs>
+  <rect width="1120" height="560" fill="white"/>
+  <text x="40" y="42" class="label" font-weight="bold">Provisional observational DAG — validate timing and roles before adjustment</text>
+  <text x="40" y="67" class="small">Blue: pre-treatment candidates · red: post-treatment variables · yellow dashed: unmeasured/uncertain</text>
+
+  <rect x="70" y="150" width="210" height="76" rx="12" class="node pre"/><text x="175" y="183" text-anchor="middle" class="label">Baseline X</text><text x="175" y="205" text-anchor="middle" class="small">attributes + history H</text>
+  <rect x="70" y="360" width="210" height="76" rx="12" class="node latent"/><text x="175" y="393" text-anchor="middle" class="label">Latent U</text><text x="175" y="415" text-anchor="middle" class="small">intent / need / selection</text>
+  <rect x="390" y="150" width="210" height="76" rx="12" class="node selection"/><text x="495" y="183" text-anchor="middle" class="label">Eligibility S</text><text x="495" y="205" text-anchor="middle" class="small">observed campaign sample</text>
+  <rect x="700" y="150" width="210" height="76" rx="12" class="node pre"/><text x="805" y="183" text-anchor="middle" class="label">Treatment A</text><text x="805" y="205" text-anchor="middle" class="small">treatment_flg at t0</text>
+  <rect x="700" y="360" width="210" height="76" rx="12" class="node post"/><text x="805" y="393" text-anchor="middle" class="label">Outcome Y</text><text x="805" y="415" text-anchor="middle" class="small">target in outcome window</text>
+  <rect x="390" y="360" width="210" height="76" rx="12" class="node post"/><text x="495" y="393" text-anchor="middle" class="label">Mediator M</text><text x="495" y="415" text-anchor="middle" class="small">redemption / engagement</text>
+
+  <path d="M280 180 L390 180" class="edge"/><path d="M280 205 C430 285 575 255 700 190" class="edge"/>
+  <path d="M280 390 C470 320 570 190 700 185" class="edge dashed"/><path d="M280 410 C450 470 580 455 700 410" class="edge dashed"/>
+  <path d="M600 180 L700 180" class="edge"/><path d="M600 385 L700 385" class="edge"/>
+  <path d="M805 226 L805 360" class="edge"/><path d="M805 226 C700 285 600 350 520 360" class="edge"/><path d="M600 400 C650 400 660 400 700 400" class="edge"/>
+  <path d="M495 226 C520 290 570 315 700 380" class="edge"/>
+
+  <text x="40" y="510" class="small">Candidate backdoor adjustment: validated pre-t0 common causes in X/H. Do not adjust for M or outcome-window variables; S requires selection analysis.</text>
+</svg>
