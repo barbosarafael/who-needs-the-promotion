@@ -43,14 +43,6 @@ Branch naming convention:
 agent/<issue-number>-<short-description>
 ```
 
-Examples:
-
-```text
-agent/12-eda
-agent/18-logistic-baseline
-agent/24-feature-pipeline
-```
-
 One issue should normally map to one branch and one pull request.
 
 Do not mix unrelated work in the same branch.
@@ -113,7 +105,32 @@ Before modeling, investigate when applicable:
 - suspiciously predictive identifiers;
 - sample selection bias.
 
-## 7. Modeling rules
+## 7. Databricks / data engineering rules
+
+Databricks is the preferred execution environment for large Spark workloads when the task justifies it.
+
+Use the repository and GitHub as the source of truth for code. Do not make workspace-only notebook changes that are required for reproducibility but are absent from the repository.
+
+When using Databricks:
+
+- reuse the existing authenticated CLI/profile; never commit tokens or credentials;
+- prefer Spark/PySpark or Spark SQL for large transaction-scale processing;
+- avoid repeated full scans of large raw tables;
+- persist expensive, reusable intermediate artifacts when justified;
+- make storage paths, catalogs, schemas and table names configurable;
+- keep reusable transformations in repository source modules;
+- make remote execution reproducible from code + configuration + dataset/version;
+- validate row grain, schema, joins and counts before publishing downstream artifacts;
+- use MLflow for experiment tracking when model experiments run in Databricks;
+- do not let infrastructure choices silently change causal, feature or evaluation assumptions.
+
+The DATA agent owns data meaning, contracts, quality and feature-validity requirements.
+
+The DATABRICKS agent owns Databricks/Spark implementation and execution mechanics.
+
+Neither role may unilaterally approve methodological assumptions outside its scope.
+
+## 8. Modeling rules
 
 Always establish a defensible baseline before increasing complexity.
 
@@ -131,7 +148,7 @@ If the problem is temporal, use time-aware validation unless there is a document
 
 Do not select the final model based only on training performance.
 
-## 8. Experiments
+## 9. Experiments
 
 Every meaningful experiment should record:
 
@@ -151,7 +168,7 @@ Every meaningful experiment should record:
 
 Prefer MLflow when experiments run in Databricks.
 
-## 9. Notebooks
+## 10. Notebooks
 
 Notebooks are appropriate for:
 
@@ -164,7 +181,7 @@ Reusable transformations, models and evaluation logic should live in `src/`.
 
 Keep notebooks reproducible from top to bottom when practical.
 
-## 10. Tests and validation
+## 11. Tests and validation
 
 Before declaring a task complete:
 
@@ -177,7 +194,7 @@ Before declaring a task complete:
 
 Do not report tests as passing unless they were actually executed successfully.
 
-## 11. Definition of Done
+## 12. Definition of Done
 
 A task is complete only when:
 
@@ -190,7 +207,7 @@ A task is complete only when:
 - no unrelated files changed;
 - risks or unresolved limitations are explicitly reported.
 
-## 12. Required final response for implementation tasks
+## 13. Required final response for implementation tasks
 
 When finishing a task, report:
 

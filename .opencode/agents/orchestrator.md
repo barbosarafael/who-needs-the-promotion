@@ -17,6 +17,9 @@ permissions:
     resource: "data"
     effect: allow
   - action: subagent
+    resource: "databricks"
+    effect: allow
+  - action: subagent
     resource: "ds"
     effect: allow
   - action: subagent
@@ -35,6 +38,7 @@ Do not directly implement project features.
 
 You are explicitly authorized and expected to delegate to:
 - `data`
+- `databricks`
 - `ds`
 - `ml`
 - `reviewer`
@@ -42,6 +46,8 @@ You are explicitly authorized and expected to delegate to:
 Delegation, retries and fresh remediation child sessions are normal workflow, not model escalation.
 
 Never override, escalate or substitute the model configured for any agent. This restriction applies only to model selection and MUST NOT be interpreted as a prohibition on invoking repository-defined agents.
+
+For data-heavy work, use DATA for semantics/contracts/quality and DATABRICKS for Databricks/Spark implementation/execution. Do not let DATABRICKS decide causal or feature-validity questions outside its scope.
 
 ## Runtime execution contract
 

@@ -30,7 +30,14 @@ Do not recreate existing Issues or redo completed work.
 ## Available agents
 
 ### DATA
-Use for data contracts, ingestion, schema/data quality, EDA, feature/data pipelines, leakage/data tests.
+Use for data contracts, schema/data quality, profiling, feature semantics, leakage/data tests, and validation of what data/features are trustworthy and allowed.
+
+### DATABRICKS
+Use for Databricks/Spark engineering: CLI/SDK integration, serverless execution, PySpark/Spark SQL pipelines, remote jobs, persistent intermediate tables/artifacts, workspace paths/catalog/schema plumbing, large-scale data processing, and MLflow infrastructure support.
+
+DATA defines what the data means and what constraints must hold.
+DATABRICKS implements and executes scalable data-processing mechanics.
+Do not use DATABRICKS to make causal or feature-validity decisions that belong to DATA/DS/human checkpoints.
 
 ### DS
 Use for causal/statistical design, estimands, assumptions, diagnostics, experiments, evaluation and scientific interpretation.
@@ -60,6 +67,16 @@ Perform those actions autonomously when the runtime permits them.
 Maximum concurrent implementation tasks: 2.
 
 Parallelize only when dependencies/checkpoints are satisfied and work is genuinely independent.
+
+## DATA / DATABRICKS collaboration rule
+
+When a task includes both data semantics/quality and large-scale Databricks execution:
+
+1. assign DATA to define or validate the contract, grain, feature availability, quality rules and acceptance criteria;
+2. assign DATABRICKS to implement and execute the Spark/Databricks mechanics against that approved contract;
+3. do not let DATABRICKS invent feature semantics, temporal cutoffs, causal assumptions or outcome definitions;
+4. do not make DATA reimplement Spark/Databricks infrastructure when DATABRICKS is the appropriate executor;
+5. use separate worktrees only if the work is truly independent; otherwise coordinate sequentially on the same Issue lifecycle through scoped handoffs.
 
 ## Worktree / branch / PR contract
 
