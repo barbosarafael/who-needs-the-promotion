@@ -5,8 +5,8 @@
 [dataset]
 name = "retailhero-uplift"
 source_uri = "https://huggingface.co/datasets/pytorch-lifestream/retailhero-uplift"
-source_revision = "REPLACE_WITH_APPROVED_REVISION_OR_COMMIT"
-retrieved_at_utc = "REPLACE_WITH_UTC_TIMESTAMP"
+source_revision = "7744156a4f89f4828607921e8c9668f04801f4de"
+retrieved_at_utc = "2026-10-03 (downloaded; exact UTC time not recorded)"
 checksum_algorithm = "sha256"
 manifest_path = "configs/data_manifest.toml"
 
@@ -16,15 +16,15 @@ interim_root = "data/interim"
 processed_root = "data/processed"
 
 [files]
-clients = "clients.csv"
-products = "products.csv"
-purchases = "purchases.csv"
-uplift_train = "uplift_train.csv"
-uplift_test = "uplift_test.csv"
+clients = "clients.csv.gz"
+products = "products.csv.gz"
+purchases = "purchases.csv.gz"
+uplift_train = "uplift_train.csv.gz"
+uplift_test = "uplift_test.csv.gz"
 
 [format]
 type = "csv"
-delimiter = ";"
+delimiter = ","
 encoding = "utf-8"
 
 [processing]

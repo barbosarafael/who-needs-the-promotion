@@ -10,14 +10,17 @@ def test_config_resolves_repository_paths_and_required_inputs() -> None:
     assert config.source_revision
     assert config.raw_root == Path("data/raw")
     assert config.files == {
-        "clients": "clients.csv",
-        "products": "products.csv",
-        "purchases": "purchases.csv",
-        "uplift_train": "uplift_train.csv",
-        "uplift_test": "uplift_test.csv",
+        "clients": "clients.csv.gz",
+        "products": "products.csv.gz",
+        "purchases": "purchases.csv.gz",
+        "uplift_train": "uplift_train.csv.gz",
+        "uplift_test": "uplift_test.csv.gz",
     }
-    assert config.delimiter == ";"
+    assert config.delimiter == ","
     assert config.engine == "spark"
+    assert config.purchase_duplicate_key == (
+        "client_id", "transaction_datetime", "product_id"
+    )
 
 
 def test_environment_overrides_are_supported() -> None:

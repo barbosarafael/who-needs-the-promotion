@@ -30,6 +30,7 @@ class DataConfig:
     delimiter: str
     encoding: str
     engine: str
+    purchase_duplicate_key: tuple[str, ...]
     customer_output: Path
     transaction_aggregate_output: Path
 
@@ -84,6 +85,7 @@ def load_data_config(
         delimiter=raw["format"]["delimiter"],
         encoding=raw["format"]["encoding"],
         engine=processing["engine"],
+        purchase_duplicate_key=tuple(raw["validation"]["purchase_duplicate_key"]),
         customer_output=resolve_output(
             processing["customer_output"], paths["processed_root"]
         ),
