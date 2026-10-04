@@ -1,0 +1,7 @@
+# Runtime-only Databricks connection settings. Authentication comes from the
+# Databricks CLI profile/keyring; never put tokens or credentials here.
+[databricks]
+profile = "DEFAULT"
+warehouse_id = ""
+wait_timeout = "50s"
+poll_interval = "2s"

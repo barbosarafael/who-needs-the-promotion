@@ -26,6 +26,7 @@ ds = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["data*", "databricks_integration*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
