@@ -4,21 +4,31 @@
 [dataset]
 name = "retailhero-uplift"
 source_uri = "https://huggingface.co/datasets/pytorch-lifestream/retailhero-uplift"
-source_revision = "REPLACE_WITH_APPROVED_REVISION_OR_COMMIT"
-retrieved_at_utc = "REPLACE_WITH_UTC_TIMESTAMP"
-checksum_algorithm = "sha256"
+source_revision = "7744156a4f89f4828607921e8c9668f04801f4de"
+retrieved_at_utc = "2026-10-03 (downloaded; exact UTC time not recorded)"
+checksum_algorithm = "SHA-256 of locally downloaded compressed CSV.GZ bytes"
 
 [checksums.sha256]
-clients = "REPLACE_WITH_SHA256"
-products = "REPLACE_WITH_SHA256"
-purchases = "REPLACE_WITH_SHA256"
-uplift_train = "REPLACE_WITH_SHA256"
-uplift_test = "REPLACE_WITH_SHA256"
+clients = "b8985170e03dc65fa532fb6b8ca6dd70ea5c30c35ea7c1019ee6ea2034d04099"
+products = "6b72e025ff77974940ebdba63998a4349ae290a33efeb41f29989fdea6e96573"
+purchases = "1342e14e1aa9d39dc242f1b66c903f0576fd184af9dc5a3bbe932607dc2d8aba"
+uplift_train = "23aced68634c605acb93a7ab450aabac1a0ce0c8104e59ffed9941109ddc4ccd"
+uplift_test = "8b98fe6ee94478253f40e7ed7ebbbefeb47c78ab37fd41111f3b35b8b69373e0"
+
+[source_files]
+# Hugging Face API tree metadata at source_revision (sizes in bytes; Git blob OIDs,
+# not SHA-256 checksums of retrieved compressed files).
+clients = "data/clients.csv.gz|7634884|e97bc143552c412f24f2019935c2faa1727a1ee6"
+products = "data/products.csv.gz|1054470|97b12fbd5a740a4427ab4871171a691ff7a1319d"
+purchases = "data/purchases.csv.gz|608830890|aa27daff0a06546eccbe5e2ce0fccb815d0c65bc"
+uplift_train = "data/uplift_train.csv.gz|1182429|fd13b2ffe16c6186c750e3a84a2e00b1f14cf042"
+uplift_test = "data/uplift_test.csv.gz|1074829|9ea3df5eb73c15c470dc086fd70ef8bd4ab898a4"
 
 [observed]
-# Populate after acquisition/profile; values are intentionally not guessed.
-row_counts = "REPLACE_WITH_ROW_COUNTS_JSON_OR_TABLE"
-schema_hash = "REPLACE_WITH_SCHEMA_SHA256"
+# Row counts were obtained by complete streaming CSV.GZ scans. Schema hash is
+# SHA-256 of compact, sorted-key JSON mapping source table names to ordered headers.
+row_counts = "{clients=400162, products=43038, purchases=45786568, uplift_train=200039, uplift_test=200123}"
+schema_hash = "7a7549d1d75c65198618a21750771c8463ffb38820bbd2bf7c070fd0242d725a"
 
 [artifacts.customer_modeling]
 path = "data/processed/customer_modeling.parquet"
