@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.databricks_spark_smoke import cli_json, load_config, run
+from databricks_integration.smoke import cli_json, load_config, run
 
 
 def test_load_config_uses_no_secret_material() -> None:
@@ -45,7 +45,34 @@ def test_run_executes_remote_query(monkeypatch: pytest.MonkeyPatch, tmp_path: Pa
         calls.append(args)
         return responses.pop(0)
 
-    monkeypatch.setattr("scripts.databricks_spark_smoke.cli_json", fake_cli)
+    monkeypatch.setattr("databricks_integration.smoke.cli_json", fake_cli)
     assert run(cfg)["rows"] == [["1"]]
     body = json.loads(calls[1][calls[1].index("--json") + 1])
     assert body["statement"] == "SELECT 1 AS spark_smoke"
+
+
+def test_profile_override_precedence(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    cfg = tmp_path / "config.toml"
+    cfg.write_text(
+        '[databricks]\nprofile="config"\nwarehouse_id="wh"\n'
+        'wait_timeout="50s"\npoll_interval="0s"\n'
+    )
+    profiles: list[str] = []
+
+    def fake_cli(args: list[str], profile: str) -> object:
+        profiles.append(profile)
+        if args == ["warehouses", "list"]:
+            return [{"id": "wh"}]
+        return {
+            "statement_id": "stmt",
+            "status": {"state": "SUCCEEDED"},
+            "result": {"data_array": [["1"]]},
+        }
+
+    monkeypatch.setattr("databricks_integration.smoke.cli_json", fake_cli)
+    monkeypatch.setenv("DATABRICKS_CONFIG_PROFILE", "environment")
+    run(cfg, "command-line")
+    assert profiles == ["command-line", "command-line"]
+    profiles.clear()
+    run(cfg)
+    assert profiles == ["environment", "environment"]

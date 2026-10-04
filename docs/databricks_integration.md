@@ -2,12 +2,19 @@
 
 The repository's minimal remote smoke test uses the installed Databricks CLI
 and its existing profile/keyring authentication. No credential is stored here.
-Install Databricks CLI v1.x, configure `configs/databricks.toml` with your CLI
-profile and (optionally) a SQL warehouse ID, then run:
+Install the project (`pip install -e '.[dev]'`) and Databricks CLI v1.x, then
+run with the generic `DEFAULT` profile from
+`configs/databricks.toml`, or choose a profile without editing shared config:
 
 ```bash
 python scripts/databricks_spark_smoke.py
+python scripts/databricks_spark_smoke.py --profile my-workspace
+# alternatively: export DATABRICKS_CONFIG_PROFILE=my-workspace
 ```
+
+Profile precedence is `--profile`, then `DATABRICKS_CONFIG_PROFILE`, then the
+config value. The config contains no credentials or workspace-specific
+identity; authentication stays in the user's Databricks CLI configuration.
 
 The smoke test discovers a visible serverless-enabled warehouse when no ID is
 configured and executes only `SELECT 1 AS spark_smoke`. It prints the warehouse
